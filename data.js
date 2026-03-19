@@ -3,7 +3,8 @@ const COMMANDS = [
     { id: 'down', name: 'Abajo', icon: '⬇️', action: (pos) => ({ x: pos.x, y: pos.y + 1 }) },
     { id: 'left', name: 'Izquierda', icon: '⬅️', action: (pos) => ({ x: pos.x - 1, y: pos.y }) },
     { id: 'right', name: 'Derecha', icon: '➡️', action: (pos) => ({ x: pos.x + 1, y: pos.y }) },
-    { id: 'repeat', name: 'Repetir', icon: '🔁', action: null } // Repeat duplicates the sequence dynamically
+    { id: 'repeat', name: 'Repetir', icon: '🔁', action: null }, // Repeat duplicates the sequence dynamically
+    { id: 'enter', name: 'Siguiente Bloque', icon: '↵', action: null } // Enter ends current block
 ];
 
 const ELEMENTS = [

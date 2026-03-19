@@ -45,3 +45,5 @@ Cuando no se alcanza el objetivo ni tampoco la derrota, ejecutar una secuencia, 
 Al reintentar, dentro de la misma partida, no debe borrarse la secuencia de comandos. El personaje debe quedar en la posicion donde llego, y debe cambiar el boton ejecutar por un reintentar.
 
 Hacer click en alguno de los comandos de la secuencia de comandos deberia eliminarlo.
+
+Añade un nuevo comando (y su boton), Enter, esto lo que hace es finalizar un bloque de secuencia de comandos, y empezar un nuevo bloque, de esa forma, los repetir no repetirian toda la secuencia de comandos, sino los comandos de su bloque de suecuencia, por ejemplo, abajo derecha repetir repetir enter repetir, provocaria que no se alcance la solucion y que el repetir del segundo bloque no tenga ningun efecto porque en ese bloque no hay ningun comando que repetir.

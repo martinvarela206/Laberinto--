@@ -196,16 +196,21 @@ function updateSequenceUI() {
 
 // Ejecución posfija
 function evaluateSequence(commands) {
-    let result = [];
+    let finalResult = [];
+    let currentBlockResult = [];
     for(let cmd of commands) {
-        if(cmd.id === 'repeat') {
-            // Duplica todo lo anterior
-            result = result.concat(result);
+        if(cmd.id === 'enter') {
+            finalResult = finalResult.concat(currentBlockResult);
+            currentBlockResult = [];
+        } else if(cmd.id === 'repeat') {
+            // Duplica todo lo del bloque actual
+            currentBlockResult = currentBlockResult.concat(currentBlockResult);
         } else {
-            result.push(cmd);
+            currentBlockResult.push(cmd);
         }
     }
-    return result;
+    finalResult = finalResult.concat(currentBlockResult);
+    return finalResult;
 }
 
 async function startRun() {
