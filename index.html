@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laberinto Didáctico</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="game-container">
+        <header class="glass-header">
+            <div class="title">
+                <h1>Laberinto++</h1>
+                <p>Aprende a programar jugando</p>
+            </div>
+            <div class="stats">
+                <div class="stat-box">
+                    <span class="stat-label">Comandos</span>
+                    <span id="commands-count" class="stat-value">0</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">Tiempo</span>
+                    <span id="time-count" class="stat-value">60</span>s
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <aside class="left-panel glass-panel">
+                <div class="panel-section">
+                    <h2>Comandos</h2>
+                    <div id="commands-bank" class="command-grid">
+                        <!-- Comandos dinámicos -->
+                    </div>
+                </div>
+
+                <div class="panel-section flex-grow">
+                    <div class="sequence-header">
+                        <h2>Secuencia Actual</h2>
+                        <button id="btn-undo" class="icon-btn" title="Deshacer último comando">↩️</button>
+                    </div>
+                    <div id="sequence-container" class="sequence-box">
+                        <!-- Secuencia de usuario -->
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button id="btn-run" class="btn primary-btn">▶️ Ejecutar</button>
+                    <button id="btn-reset" class="btn secondary-btn">🔄 Reiniciar</button>
+                </div>
+            </aside>
+
+            <section class="right-panel glass-panel">
+                <div id="grid-container" class="maze-grid">
+                    <!-- 10x10 Grid -->
+                </div>
+            </section>
+        </main>
+        
+        <div id="modal-overlay" class="modal-overlay hidden">
+            <div class="modal glass-panel">
+                <h2 id="modal-title">¡Juego Terminado!</h2>
+                <p id="modal-message">Mensaje del resultado</p>
+                <div id="modal-score" class="score-display hidden">Puntuación: <span id="final-score">0</span></div>
+                
+                <div id="name-input-group" class="input-group hidden">
+                    <input type="text" id="player-name" placeholder="Tu nombre" maxlength="15">
+                    <button id="btn-save-score" class="btn primary-btn">Guardar</button>
+                </div>
+
+                <div class="ranking-section">
+                    <h3>🏆 Top 10 Mejores Programadores</h3>
+                    <ul id="ranking-list" class="ranking-list">
+                        <!-- Ranking list -->
+                    </ul>
+                </div>
+                <button id="btn-play-again" class="btn primary-btn mt-3">Jugar de nuevo</button>
+            </div>
+        </div>
+    </div>
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
