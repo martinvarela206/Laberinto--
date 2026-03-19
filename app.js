@@ -33,6 +33,7 @@ const els = {
     rankingList: document.getElementById('ranking-list'),
     btnPlayAgain: document.getElementById('btn-play-again'),
     btnNextLevel: document.getElementById('btn-next-level'),
+    btnRetry: document.getElementById('btn-retry'),
     levelDisplay: document.getElementById('level-display')
 };
 
@@ -47,6 +48,7 @@ function init() {
     els.btnReset.addEventListener('click', resetLevel);
     els.btnPlayAgain.addEventListener('click', playAgain);
     els.btnNextLevel.addEventListener('click', nextLevel);
+    els.btnRetry.addEventListener('click', retryLevel);
     els.btnSaveScore.addEventListener('click', saveScore);
     
     // Window resize handler to reposition player if window resizes
@@ -235,20 +237,6 @@ function evaluateSequence(commands) {
 async function startRun() {
     if(state.sequence.length === 0) return;
     
-    if(els.btnRun.classList.contains('retry-mode')) {
-        // Modo reintentar: volver al inicio manteniendo la secuencia
-        state.position = { ...state.level.playerStart };
-        updatePlayerPosition();
-        
-        els.btnRun.innerHTML = '▶️ Ejecutar';
-        els.btnRun.classList.remove('secondary-btn', 'retry-mode');
-        els.btnRun.classList.add('primary-btn');
-        
-        els.btnUndo.disabled = false;
-        els.commandsBank.style.pointerEvents = 'auto';
-        return;
-    }
-    
     state.playing = true;
     els.btnRun.disabled = true;
     els.btnUndo.disabled = true;
@@ -260,9 +248,6 @@ async function startRun() {
     const executionPlan = evaluateSequence(state.sequence);
     
     for(let i=0; i < executionPlan.length; i++) {
-        // En un juego completo, podríamos marcar en la UI de alguna manera
-        // Pero dado que repeat genera múltiples acciones, no es tan directo.
-        
         await delay(300);
         
         if(!state.playing) break; // User hit reset
@@ -270,39 +255,49 @@ async function startRun() {
         const action = executionPlan[i];
         if(action.action) {
             state.position = action.action(state.position);
+            
+            const check = checkCollisions();
+            
+            if(check === 'lose_bounds' || check === 'lose_wall') {
+                const playerEl = document.getElementById('player');
+                if(playerEl) playerEl.style.transition = 'transform 1.5s cubic-bezier(0.25, 0.1, 0.25, 1)'; // Slow motion
+                updatePlayerPosition();
+                
+                await delay(1500); // Esperar a que vea la colisión dramática
+                
+                if(playerEl) playerEl.style.transition = ''; // Restaurar transition
+                
+                if(!state.playing) return; // Si el usuario reinició a mitad de la caída
+                
+                if(check === 'lose_bounds') {
+                    gameOver(false, "Oh no! Te caíste del laberinto.");
+                } else {
+                    gameOver(false, "¡Ouch! Chocaste con un obstáculo.");
+                }
+                return;
+            }
+            
             updatePlayerPosition();
             
             if(!state.pathTaken.some(p => p.x === state.position.x && p.y === state.position.y)) {
                 state.pathTaken.push({ ...state.position });
             }
-            
-            const check = checkCollisions();
-            if(check === 'lose_bounds') {
-                gameOver(false, "Oh no! Te caíste del laberinto.");
-                return;
-            } else if(check === 'lose_wall') {
-                gameOver(false, "¡Ouch! Chocaste con un obstáculo.");
-                return;
-            } else if(check === 'win') {
-                stopTimer();
-                await delay(300);
-                gameOver(true, "¡Excelente lógica!");
-                return;
-            }
+            // Si check === 'win', continuamos la secuencia para que roce la meta exacto.
         }
     }
     
-    // Si terminó la secuencia y no ganó
+    // Si terminó la secuencia sin interrupciones fatales
     if(state.playing) {
         state.playing = false;
         
-        // Mostrar botón de reintentar en vez de modal para que puedan ver el tablero
-        els.btnRun.innerHTML = '↩️ Reintentar';
-        els.btnRun.classList.remove('primary-btn');
-        els.btnRun.classList.add('secondary-btn', 'retry-mode');
-        els.btnRun.disabled = false;
-        
-        // Los comandos siguen deshabilitados hasta que le den a reintentar
+        const check = checkCollisions();
+        if(check === 'win') {
+            stopTimer();
+            await delay(300);
+            gameOver(true, "¡Excelente lógica!");
+        } else {
+            gameOver(false, "La secuencia terminó, pero no alcanzaste la meta.");
+        }
     }
 }
 
@@ -354,6 +349,7 @@ function gameOver(isWin, msg) {
     if(isWin) {
         els.modalScore.classList.remove('hidden');
         els.nameInputGroup.classList.remove('hidden');
+        els.btnRetry.classList.add('hidden'); // Ocultar retry si ganó
         
         // Puntuación: base 1000 - (comandos * 50) + (tiempo restante * 10)
         // Menos comandos = Mayor puntuación
@@ -364,7 +360,33 @@ function gameOver(isWin, msg) {
     } else {
         els.modalScore.classList.add('hidden');
         els.nameInputGroup.classList.add('hidden');
+        els.btnRetry.classList.remove('hidden'); // Mostrar retry si perdió
     }
+}
+
+function retryLevel() {
+    els.modal.classList.add('hidden');
+    els.btnRetry.classList.add('hidden');
+    
+    state.position = { ...state.level.playerStart };
+    state.playing = false;
+    state.isGameOver = false;
+    state.timer = 60;
+    state.pathTaken = [];
+    
+    stopTimer();
+    els.timeCount.innerText = state.timer;
+    
+    els.btnRun.disabled = false;
+    els.btnRun.innerHTML = '▶️ Ejecutar';
+    els.btnRun.classList.remove('secondary-btn', 'retry-mode');
+    els.btnRun.classList.add('primary-btn');
+    
+    els.btnUndo.disabled = false;
+    els.commandsBank.style.pointerEvents = 'auto'; // Habilitar clics nativos
+    
+    renderGrid();
+    startTimer();
 }
 
 function playAgain() {

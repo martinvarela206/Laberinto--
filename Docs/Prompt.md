@@ -53,3 +53,9 @@ Añade un nuevo comando (y su boton), Enter, esto lo que hace es finalizar un bl
 ===
 
 Ahora, cuando el jugador alcance el maximo puntaje y quede top1, ademas de la opcion jugar de nuevo, que de la opcion de subir de nivel, al subir de nivel, basado en la solucion alcanzada, deberia añadir un obstaculo en la solucion, para que al repetirla el obstaculo la bloquee y haya que cambiarla.
+
+===
+
+La secuencia de comandos debe alcanzar justo la meta, si todavia quedan comandos en la secuencia, deben seguirse ejecutando, si si la meta no es el final de la secuencia, quizas se alcance el borde y se pierda.
+
+En el modal de jugar de nuevo, debe estar tambien el boton reintentar, para recuperar la secuencia anterior que termino en derrota.
