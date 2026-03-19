@@ -6,7 +6,9 @@ let state = {
     isGameOver: false,
     timer: 60,
     intervalId: null,
-    level: LEVEL_1,
+    level: JSON.parse(JSON.stringify(LEVEL_1)),
+    levelNumber: 1,
+    pathTaken: [],
     commandsUsed: 0
 };
 
@@ -29,7 +31,9 @@ const els = {
     playerName: document.getElementById('player-name'),
     btnSaveScore: document.getElementById('btn-save-score'),
     rankingList: document.getElementById('ranking-list'),
-    btnPlayAgain: document.getElementById('btn-play-again')
+    btnPlayAgain: document.getElementById('btn-play-again'),
+    btnNextLevel: document.getElementById('btn-next-level'),
+    levelDisplay: document.getElementById('level-display')
 };
 
 // Inicialización
@@ -42,6 +46,7 @@ function init() {
     els.btnRun.addEventListener('click', startRun);
     els.btnReset.addEventListener('click', resetLevel);
     els.btnPlayAgain.addEventListener('click', playAgain);
+    els.btnNextLevel.addEventListener('click', nextLevel);
     els.btnSaveScore.addEventListener('click', saveScore);
     
     // Window resize handler to reposition player if window resizes
@@ -55,6 +60,7 @@ function resetState() {
     state.isGameOver = false;
     state.timer = 60;
     state.commandsUsed = 0;
+    state.pathTaken = [];
     
     stopTimer();
     els.timeCount.innerText = state.timer;
@@ -127,6 +133,19 @@ function renderGrid() {
         goalEl.className = 'goal';
         goalEl.innerText = COMPONENTS.goal.icon;
         goalCell.appendChild(goalEl);
+    }
+    
+    // Paredes
+    if(state.level.walls) {
+        state.level.walls.forEach(w => {
+            const cell = getCell(w.x, w.y);
+            if(cell) {
+                const wallEl = document.createElement('div');
+                wallEl.className = 'wall';
+                wallEl.innerText = '🧱';
+                cell.appendChild(wallEl);
+            }
+        });
     }
     
     // Jugador inicial
@@ -253,9 +272,16 @@ async function startRun() {
             state.position = action.action(state.position);
             updatePlayerPosition();
             
+            if(!state.pathTaken.some(p => p.x === state.position.x && p.y === state.position.y)) {
+                state.pathTaken.push({ ...state.position });
+            }
+            
             const check = checkCollisions();
             if(check === 'lose_bounds') {
                 gameOver(false, "Oh no! Te caíste del laberinto.");
+                return;
+            } else if(check === 'lose_wall') {
+                gameOver(false, "¡Ouch! Chocaste con un obstáculo.");
                 return;
             } else if(check === 'win') {
                 stopTimer();
@@ -293,12 +319,21 @@ function checkCollisions() {
         return 'win';
     }
     
+    // Wall check
+    if(state.level.walls && state.level.walls.some(w => w.x === p.x && w.y === p.y)) {
+        return 'lose_wall';
+    }
+    
     return 'safe';
 }
 
 function resetLevel() {
     state.playing = false;
+    state.levelNumber = 1;
+    state.level = JSON.parse(JSON.stringify(LEVEL_1));
+    els.levelDisplay.innerText = `Nivel ${state.levelNumber}`;
     resetState();
+    loadRanking();
 }
 
 function delay(ms) {
@@ -334,6 +369,7 @@ function gameOver(isWin, msg) {
 
 function playAgain() {
     els.modal.classList.add('hidden');
+    els.btnNextLevel.classList.add('hidden');
     resetState();
 }
 
@@ -341,22 +377,33 @@ function saveScore() {
     const name = els.playerName.value.trim() || 'Anónimo';
     const score = parseInt(els.finalScore.dataset.score, 10);
     
-    let ranking = JSON.parse(localStorage.getItem('laberintoRanking') || '[]');
+    // Fallback al key original para el nivel 1, nuevo patrón para niveles superiores
+    const rankingKey = state.levelNumber === 1 ? 'laberintoRanking' : `laberintoRanking_nivel_${state.levelNumber}`;
+    
+    let ranking = JSON.parse(localStorage.getItem(rankingKey) || '[]');
+    const isTop1 = ranking.length === 0 || score >= ranking[0].score;
+    
     ranking.push({ name, score, date: new Date().toISOString() });
     
     // Ordenar de mayor a menor y mantener top 10
     ranking.sort((a,b) => b.score - a.score);
     ranking = ranking.slice(0, 10);
     
-    localStorage.setItem('laberintoRanking', JSON.stringify(ranking));
+    localStorage.setItem(rankingKey, JSON.stringify(ranking));
     
     els.nameInputGroup.classList.add('hidden');
     els.playerName.value = '';
     loadRanking();
+    
+    if(isTop1) {
+        els.btnNextLevel.classList.remove('hidden');
+    }
 }
 
 function loadRanking() {
-    let ranking = JSON.parse(localStorage.getItem('laberintoRanking') || '[]');
+    // Fallback al key original para el nivel 1
+    const rankingKey = state.levelNumber === 1 ? 'laberintoRanking' : `laberintoRanking_nivel_${state.levelNumber}`;
+    let ranking = JSON.parse(localStorage.getItem(rankingKey) || '[]');
     els.rankingList.innerHTML = '';
     
     if(ranking.length === 0) {
@@ -370,6 +417,31 @@ function loadRanking() {
         li.innerHTML = `<span>${pos} ${r.name}</span> <span style="color:var(--primary); font-weight:bold;">${r.score}</span>`;
         els.rankingList.appendChild(li);
     });
+}
+
+function nextLevel() {
+    els.modal.classList.add('hidden');
+    els.btnNextLevel.classList.add('hidden');
+    
+    state.levelNumber++;
+    els.levelDisplay.innerText = `Nivel ${state.levelNumber}`;
+    
+    // Elegir obstáculo de la ruta tomada, excluyendo inicio y meta
+    const validPath = state.pathTaken.filter(p => !(p.x === state.level.goal.x && p.y === state.level.goal.y) && !(p.x === state.level.playerStart.x && p.y === state.level.playerStart.y));
+    
+    if(validPath.length > 0) {
+        const randomIndex = Math.floor(Math.random() * validPath.length);
+        const obstacle = validPath[randomIndex];
+        if(!state.level.walls.some(w => w.x === obstacle.x && w.y === obstacle.y)) {
+            state.level.walls.push(obstacle);
+        }
+    }
+    
+    els.btnRun.innerHTML = '▶️ Ejecutar';
+    els.btnRun.classList.remove('secondary-btn', 'retry-mode');
+    els.btnRun.classList.add('primary-btn');
+    resetState();
+    loadRanking();
 }
 
 // Arrancar

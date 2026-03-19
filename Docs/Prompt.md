@@ -46,4 +46,10 @@ Al reintentar, dentro de la misma partida, no debe borrarse la secuencia de coma
 
 Hacer click en alguno de los comandos de la secuencia de comandos deberia eliminarlo.
 
+==== 
+
 Añade un nuevo comando (y su boton), Enter, esto lo que hace es finalizar un bloque de secuencia de comandos, y empezar un nuevo bloque, de esa forma, los repetir no repetirian toda la secuencia de comandos, sino los comandos de su bloque de suecuencia, por ejemplo, abajo derecha repetir repetir enter repetir, provocaria que no se alcance la solucion y que el repetir del segundo bloque no tenga ningun efecto porque en ese bloque no hay ningun comando que repetir.
+
+===
+
+Ahora, cuando el jugador alcance el maximo puntaje y quede top1, ademas de la opcion jugar de nuevo, que de la opcion de subir de nivel, al subir de nivel, basado en la solucion alcanzada, deberia añadir un obstaculo en la solucion, para que al repetirla el obstaculo la bloquee y haya que cambiarla.
