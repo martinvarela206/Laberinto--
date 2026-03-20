@@ -59,3 +59,7 @@ Ahora, cuando el jugador alcance el maximo puntaje y quede top1, ademas de la op
 La secuencia de comandos debe alcanzar justo la meta, si todavia quedan comandos en la secuencia, deben seguirse ejecutando, si si la meta no es el final de la secuencia, quizas se alcance el borde y se pierda.
 
 En el modal de jugar de nuevo, debe estar tambien el boton reintentar, para recuperar la secuencia anterior que termino en derrota.
+
+=== 
+
+El enter debe ocupar todo el ancho restante de la fila de comandos, de forma que los nuevos comandos empiecen en una fila nueva.
