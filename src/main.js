@@ -1,5 +1,5 @@
 import { createInitialState, resetRoundState, setLevel } from './core/gameState.js';
-import { evaluateSequence } from './core/commandEvaluator.js';
+import { evaluateSequence, evaluateSequenceWithOrigin } from './core/commandEvaluator.js';
 import { checkCollisions } from './core/collisionSystem.js';
 import { calculateScore } from './core/scoringSystem.js';
 import { getCommands, getCommandById, getExecutableCommandById } from './content/commands/commandRegistry.js';
@@ -289,7 +289,8 @@ async function startRun() {
     els.btnUndo.disabled = true;
     els.commandsBank.style.pointerEvents = 'none';
 
-    const executionPlan = evaluateSequence(state.sequence);
+    const executionPlan = evaluateSequenceWithOrigin(state.sequence);
+    let previousExecutingIndices = [];
 
     for (let i = 0; i < executionPlan.length; i++) {
         await delay(300);
@@ -298,9 +299,35 @@ async function startRun() {
             break;
         }
 
-        const command = getExecutableCommandById(executionPlan[i]);
+        const { command: commandId, originIdx } = executionPlan[i];
+        const command = getExecutableCommandById(commandId);
         if (!command) {
             continue;
+        }
+
+        // Normalizar originIdx a array
+        const currentIndices = Array.isArray(originIdx) ? originIdx : [originIdx];
+
+        // Remover clase del comando anterior si cambió
+        if (JSON.stringify(previousExecutingIndices) !== JSON.stringify(currentIndices)) {
+            // Remover de índices anteriores que no están en los actuales
+            for (const prevIdx of previousExecutingIndices) {
+                if (!currentIndices.includes(prevIdx)) {
+                    const prevEl = document.getElementById(`seq-${prevIdx}`);
+                    if (prevEl) {
+                        prevEl.classList.remove('executing');
+                    }
+                }
+            }
+            
+            // Agregar a índices nuevos
+            for (const currIdx of currentIndices) {
+                const currentEl = document.getElementById(`seq-${currIdx}`);
+                if (currentEl) {
+                    currentEl.classList.add('executing');
+                }
+            }
+            previousExecutingIndices = currentIndices;
         }
 
         const previousPosition = { ...state.position };
@@ -328,6 +355,14 @@ async function startRun() {
                 return;
             }
 
+            // Remover clase executing de todos
+            for (const idx of previousExecutingIndices) {
+                const prevEl = document.getElementById(`seq-${idx}`);
+                if (prevEl) {
+                    prevEl.classList.remove('executing');
+                }
+            }
+
             setTrailState(els.gridContainer, 'failure');
             await delay(PREVIEW_DELAY_DEFEAT);
             gameOver(false, check === 'lose_bounds' ? 'Oh no! Te caíste del laberinto.' : '¡Ouch! Chocaste con un obstáculo.');
@@ -344,6 +379,18 @@ async function startRun() {
 
     if (state.playing) {
         state.playing = false;
+        
+        // Esperar un poco para que el usuario vea el último comando resaltado
+        await delay(400);
+        
+        // Remover clase executing de todos al terminar
+        for (const idx of previousExecutingIndices) {
+            const prevEl = document.getElementById(`seq-${idx}`);
+            if (prevEl) {
+                prevEl.classList.remove('executing');
+            }
+        }
+
         const check = checkCollisions(state.position, state.level);
 
         if (check === 'win') {
