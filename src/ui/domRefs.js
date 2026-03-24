@@ -21,6 +21,7 @@ export function getElements() {
         btnLoreNext: document.getElementById('btn-lore-next'),
         btnLoreStart: document.getElementById('btn-lore-start'),
         btnLoreContinue: document.getElementById('btn-lore-continue'),
+        btnLoreReset: document.getElementById('btn-lore-reset'),
         tutorialOverlay: document.getElementById('tutorial-overlay'),
         tutorialTitle: document.getElementById('tutorial-title'),
         tutorialCommand: document.getElementById('tutorial-command'),

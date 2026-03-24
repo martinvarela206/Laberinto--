@@ -41,3 +41,16 @@ export function loadGameProgress() {
 export function saveLastCompletedLevel(levelId) {
     setJson(GAME_PROGRESS_KEY, { lastCompletedLevelId: levelId || null });
 }
+
+export function clearGameStorage() {
+    const keysToRemove = [];
+
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('laberinto')) {
+            keysToRemove.push(key);
+        }
+    }
+
+    keysToRemove.forEach((key) => localStorage.removeItem(key));
+}

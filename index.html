@@ -2,7 +2,9 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, minimum-scale=1.0">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="description" content="Laberinto++ - Juego didáctico para aprender programación">
     <title>Laberinto Didáctico</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
@@ -13,10 +15,12 @@
             <div class="title">
                 <h1>Laberinto++</h1>
                 <p>
-                    Aprende a programar jugando |
+                    <span class="hidden-mobile">Aprende a programar jugando</span>
+                    <span class="show-mobile">Aprende</span>
+                    <span class="hidden-mobile"> | </span>
                     <span id="level-display" style="color:var(--primary); font-weight:bold;">Nivel 1</span>
-                    |
-                    <span id="level-name-display">Primeros pasos</span>
+                    <span class="hidden-mobile"> | </span>
+                    <span id="level-name-display" class="hidden-mobile">Primeros pasos</span>
                 </p>
             </div>
             <div class="stats">
@@ -26,7 +30,7 @@
                 </div>
                 <div class="stat-box">
                     <span class="stat-label">Tiempo</span>
-                    <span id="time-count" class="stat-value">60</span>s
+                    <span id="time-count" class="stat-value">60</span><span class="stat-unit">s</span>
                 </div>
             </div>
         </header>
@@ -107,6 +111,7 @@
                     <button id="btn-lore-next" class="btn secondary-btn">Siguiente</button>
                     <button id="btn-lore-start" class="btn primary-btn">Iniciar</button>
                     <button id="btn-lore-continue" class="btn secondary-btn">Continuar</button>
+                    <button id="btn-lore-reset" class="btn secondary-btn">Volver a iniciar</button>
                 </div>
             </div>
         </div>

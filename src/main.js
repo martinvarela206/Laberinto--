@@ -12,6 +12,7 @@ import { connectTrailCells, markTrailCell, renderGrid, setTrailExit, setTrailSta
 import { renderRanking } from './ui/rankingView.js';
 import { delay } from './utils/delay.js';
 import {
+    clearGameStorage,
     hasSeenLore,
     loadGameProgress,
     loadRanking,
@@ -93,6 +94,7 @@ function bindEvents() {
     els.btnLoreNext.addEventListener('click', advanceLoreIntro);
     els.btnLoreStart.addEventListener('click', startFromBeginning);
     els.btnLoreContinue.addEventListener('click', continueGame);
+    els.btnLoreReset.addEventListener('click', restartGameFromScratch);
     els.btnTutorialContinue.addEventListener('click', hideTutorialIntro);
 }
 
@@ -320,9 +322,14 @@ function showIntroOverlayIfNeeded() {
     showTutorialIntroIfNeeded();
 }
 
-function closeStartOverlay() {
-    markLoreSeen();
-    loreShown = true;
+function closeStartOverlay(options = {}) {
+    const { persistLore = true } = options;
+
+    if (persistLore) {
+        markLoreSeen();
+        loreShown = true;
+    }
+
     startOverlayPending = false;
     loreOverlayVisible = false;
     els.loreOverlay.classList.add('hidden');
@@ -356,6 +363,7 @@ function renderLoreStep() {
     els.btnLoreNext.classList.toggle('hidden', isLastStep);
     els.btnLoreStart.classList.toggle('hidden', !isLastStep);
     els.btnLoreContinue.classList.toggle('hidden', !isLastStep || !canContinueGame);
+    els.btnLoreReset.classList.toggle('hidden', !isLastStep);
 }
 
 function advanceLoreIntro() {
@@ -392,6 +400,18 @@ async function continueGame() {
     }
 
     await loadLevelIntoState(continueLevelId);
+}
+
+async function restartGameFromScratch() {
+    clearGameStorage();
+    loreShown = false;
+    currentLoreStep = 0;
+    startOverlayPending = true;
+    loreOverlayVisible = false;
+    tutorialOverlayVisible = false;
+    els.loreOverlay.classList.add('hidden');
+    els.tutorialOverlay.classList.add('hidden');
+    await loadLevelIntoState(levelOrder[0]);
 }
 
 function hideTutorialIntro() {
