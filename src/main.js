@@ -29,6 +29,7 @@ let loreShown = false;
 let currentLoreStep = 0;
 let startOverlayPending = true;
 let tutorialOverlayVisible = false;
+let failurePositionMarker = null; // Trackea la posición del fallo para mostrar X roja
 const els = getElements();
 const PREVIEW_DELAY_VICTORY = 1400;
 const PREVIEW_DELAY_DEFEAT = 1500;
@@ -50,7 +51,7 @@ const LORE_STEPS = [
     },
     {
         kicker: 'Tu misión',
-        title: 'Tú eres su programador',
+        title: 'Tú eres debes programarlo',
         description: 'Te hemos contratado para entrenar al robot paso a paso. Si programas bien, avanzará. Si te equivocas, aprenderás del error y volverás a intentarlo.',
         story: 'Cuando superes niveles, el robot recordará hasta dónde llegó y podrás continuar desde ese progreso.',
         objective: 'Elige Iniciar para comenzar desde el principio o Continuar para retomar desde el próximo nivel disponible.'
@@ -462,6 +463,9 @@ async function startRun() {
         return;
     }
 
+    // Limpiar marcador de fallo anterior
+    clearFailureMarker();
+
     state.playing = true;
     els.btnRun.disabled = true;
     els.btnUndo.disabled = true;
@@ -602,6 +606,44 @@ function gameOver(isWin, message) {
     setTrailState(els.gridContainer, isWin ? 'success' : 'failure');
     syncRankingVisibility();
 
+    // Si es derrota no crítica (no alcanzaste, caíste, chocaste): modal temporal 2s + X roja
+    const isNonCriticalFailure = !isWin && (
+        message.includes('no alcanzaste') || 
+        message.includes('caíste') || 
+        message.includes('Chocaste')
+    );
+
+    if (isNonCriticalFailure) {
+        els.modal.classList.remove('hidden');
+        els.modalTitle.innerText = '¡Error de programación! 💀';
+        els.modalTitle.style.color = '#ef4444';
+        els.modalMessage.innerText = message;
+        
+        // Ocultar todo excepto título y mensaje
+        els.modalScore.classList.add('hidden');
+        els.nameInputGroup.classList.add('hidden');
+        els.btnRetry.classList.add('hidden');
+        els.btnPlayAgain.classList.add('hidden');
+        els.btnNextLevel.classList.add('hidden');
+        els.rankingSection.classList.add('hidden');
+        
+        // Guardar posición del fallo
+        failurePositionMarker = { ...state.position };
+        
+        // Cerrar modal después de 2 segundos y resetear posición
+        setTimeout(() => {
+            els.modal.classList.add('hidden');
+            clearTrailState();
+            state.position = { ...state.level.playerStart };
+            updatePlayerPosition(state.position);
+            // Marcar la posición del fallo con X roja
+            markFailurePosition(failurePositionMarker);
+            enableGamePanel();
+        }, 2000);
+        return;
+    }
+
+    // Para victorias y derrotas críticas (tiempo), mostrar modal normal
     els.modal.classList.remove('hidden');
     els.btnNextLevel.classList.add('hidden');
     els.modalTitle.innerText = isWin ? '¡Nivel Completado! 🌟' : '¡Error de programación! 💀';
@@ -623,6 +665,7 @@ function gameOver(isWin, message) {
             els.nameInputGroup.classList.add('hidden');
             els.btnRetry.classList.add('hidden');
             els.btnNextLevel.classList.remove('hidden');
+            els.rankingSection.classList.add('hidden');
             return;
         }
 
@@ -632,11 +675,76 @@ function gameOver(isWin, message) {
         els.btnRetry.classList.add('hidden');
         els.finalScore.innerText = String(score);
         els.finalScore.dataset.score = String(score);
+        els.rankingSection.classList.remove('hidden');
     } else {
         els.modalScore.classList.add('hidden');
         els.nameInputGroup.classList.add('hidden');
         els.btnRetry.classList.remove('hidden');
+        els.rankingSection.classList.add('hidden');
     }
+}
+
+function markFailurePosition(position) {
+    if (!position) return;
+    
+    const cell = getCellByCoords(position.x, position.y);
+    if (cell) {
+        const failureMarker = document.createElement('div');
+        failureMarker.className = 'failure-marker';
+        failureMarker.id = 'failure-marker-' + position.x + '-' + position.y;
+        failureMarker.innerText = '❌';
+        failureMarker.style.position = 'absolute';
+        failureMarker.style.top = '0';
+        failureMarker.style.left = '0';
+        failureMarker.style.right = '0';
+        failureMarker.style.bottom = '0';
+        failureMarker.style.display = 'flex';
+        failureMarker.style.alignItems = 'center';
+        failureMarker.style.justifyContent = 'center';
+        failureMarker.style.fontSize = '1.5rem';
+        failureMarker.style.zIndex = '3';
+        cell.appendChild(failureMarker);
+    }
+}
+
+function clearFailureMarker() {
+    const marker = document.getElementById('failure-marker-' + (failurePositionMarker?.x || 0) + '-' + (failurePositionMarker?.y || 0));
+    if (marker) {
+        marker.remove();
+    }
+    failurePositionMarker = null;
+}
+
+function getCellByCoords(x, y) {
+    if (x < 0 || x >= state.level.width || y < 0 || y >= state.level.height) return null;
+    return els.gridContainer.children[y * state.level.width + x] || null;
+}
+
+function clearTrailState() {
+    // Remover las clases de estado del rastro del contenedor
+    els.gridContainer.classList.remove('trail-success', 'trail-failure');
+    
+    // Remover todas las clases de rastro y limpiar estilos de todas las celdas
+    const cells = els.gridContainer.querySelectorAll('.cell');
+    cells.forEach(cell => {
+        cell.classList.remove('trail-cell', 'trail-node', 'trail-animate', 'trail-exit', 'trail-exit-up', 'trail-exit-right', 'trail-exit-down', 'trail-exit-left');
+        // Limpiar custom properties de rastro
+        cell.style.removeProperty('--trail-up');
+        cell.style.removeProperty('--trail-right');
+        cell.style.removeProperty('--trail-down');
+        cell.style.removeProperty('--trail-left');
+    });
+}
+
+function enableGamePanel() {
+    state.isGameOver = false;
+    els.btnRun.disabled = false;
+    els.btnRun.innerHTML = '▶️ Ejecutar';
+    els.btnRun.classList.remove('secondary-btn', 'retry-mode');
+    els.btnRun.classList.add('primary-btn');
+    els.btnUndo.disabled = false;
+    els.commandsBank.style.pointerEvents = 'auto';
+    startTimer();
 }
 
 function retryLevel() {

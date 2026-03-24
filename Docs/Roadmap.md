@@ -104,7 +104,7 @@ main.js
 ## 4. Diseño de niveles en JSON
 
 ### Objetivo
-Permitir que diseño de niveles no dependa del programador. Un nivel debe poder crearse, validarse y cargarse sin tocar lógica del motor.
+Permitir que diseño de niveles no dependa de los programadores. Un nivel debe poder crearse, validarse y cargarse sin tocar lógica del motor.
 
 ### Esquema recomendado
 

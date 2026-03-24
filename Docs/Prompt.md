@@ -131,7 +131,7 @@ Se muestra una sola vez al abrir el juego (verificado con `laberintoLoreSeen`):
 
 1. **Instituto de Informática**: Presentación del proyecto
 2. **Un robot que aprende**: Concepto de instrucciones precisas
-3. **Tú eres el programador**: Tu rol y opciones (Iniciar, Continuar, Volver a iniciar)
+3. **Tú debes programarlo**: Tu rol y opciones (Iniciar, Continuar, Volver a iniciar)
 
 ### 6.2 Componentes Lore
 - Robot emoji: 🤖 (con borde gradiente azul, glow)
