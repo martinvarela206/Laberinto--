@@ -447,6 +447,505 @@ Diseñar una matriz de aprendizaje por nivel y por comando.
 - cerrar MVP1 estable
 - abrir desarrollo paralelo de MVP2
 
+### Estructura para iniciar MVP1
+
+```text
+/
+  index.html
+  styles.css
+  app.js (legacy, no tocar)
+  data.js (legacy, no tocar)
+  /src
+    main.js
+    /core
+      gameState.js
+      commandEvaluator.js
+      collisionSystem.js
+      scoringSystem.js
+      progressionSystem.js
+    /content
+      /commands
+        commandRegistry.js
+      /elements
+        elementRegistry.js
+      /levels
+        levelIndex.json
+        level-001.json
+        level-002.json
+        level-003.json
+        levelLoader.js
+        levelValidator.js
+        levelsFallback.js
+    /ui
+      domRefs.js
+      commandPalette.js
+      sequenceView.js
+      gridView.js
+      rankingView.js
+    /services
+      storageService.js
+    /utils
+      deepClone.js
+      delay.js
+  /Docs
+    Roadmap.md
+    Prompt.md
+```
+
 ## 14. Recomendación final como project lead
 
 No conviene seguir iterando el producto directamente sobre el prototipo actual. El siguiente paso correcto no es “añadir sprites” ni “sumar más comandos”, sino estabilizar la base con un motor modular y niveles en JSON. Si eso se resuelve primero, el resto del roadmap se vuelve ejecutable por tres personas en paralelo sin colisiones constantes.
+
+## 15. Backlog técnico detallado por tareas
+
+### Convenciones de backlog
+- Prioridad: P0 (crítico), P1 (alto), P2 (medio), P3 (bajo).
+- Estimación: XS (<= 0.5 día), S (1 día), M (2-3 días), L (4-5 días), XL (> 1 semana).
+- Responsable sugerido: A (motor), B (UI/editor), C (contenido/assets).
+- Dependencias: IDs de tareas que deben estar listas antes.
+
+### MVP1 - Base modular jugable
+
+#### Epic M1-E1: Modularización del runtime
+- ID: M1-T01
+  - Título: Crear estructura de carpetas src por dominios
+  - Tipo: Refactor infra
+  - Prioridad: P0
+  - Estimación: S
+  - Responsable: A
+  - Dependencias: Ninguna
+  - Criterio de aceptación: existe estructura mínima `src/core`, `src/ui`, `src/content`, `src/services`, `src/utils`.
+- ID: M1-T02
+  - Título: Extraer estado global a gameState
+  - Tipo: Refactor
+  - Prioridad: P0
+  - Estimación: M
+  - Responsable: A
+  - Dependencias: M1-T01
+  - Criterio de aceptación: estado del juego encapsulado sin acceso directo desde vistas.
+- ID: M1-T03
+  - Título: Extraer loop de ejecución a gameEngine
+  - Tipo: Refactor
+  - Prioridad: P0
+  - Estimación: M
+  - Responsable: A
+  - Dependencias: M1-T02
+  - Criterio de aceptación: la ejecución de secuencia no manipula DOM directamente.
+- ID: M1-T04
+  - Título: Implementar bus de eventos básico
+  - Tipo: Infra
+  - Prioridad: P1
+  - Estimación: S
+  - Responsable: A
+  - Dependencias: M1-T01
+  - Criterio de aceptación: UI responde a eventos emitidos por core (`tick`, `move`, `win`, `lose`, `timeout`).
+
+#### Epic M1-E2: Comandos y evaluación desacoplada
+- ID: M1-T05
+  - Título: Migrar comandos a commandRegistry
+  - Tipo: Feature técnica
+  - Prioridad: P0
+  - Estimación: S
+  - Responsable: A
+  - Dependencias: M1-T01
+  - Criterio de aceptación: los comandos se registran por ID y metadata.
+- ID: M1-T06
+  - Título: Extraer lógica de repeat/enter a commandEvaluator
+  - Tipo: Refactor
+  - Prioridad: P0
+  - Estimación: M
+  - Responsable: A
+  - Dependencias: M1-T05
+  - Criterio de aceptación: evaluator recibe secuencia y devuelve plan ejecutable independiente de UI.
+- ID: M1-T07
+  - Título: Pruebas unitarias de evaluator
+  - Tipo: Calidad
+  - Prioridad: P1
+  - Estimación: M
+  - Responsable: A
+  - Dependencias: M1-T06
+  - Criterio de aceptación: cubre bloques vacíos, repeats encadenados y `enter` final.
+
+#### Epic M1-E3: Niveles en JSON
+- ID: M1-T08
+  - Título: Definir schema JSON v1 de nivel
+  - Tipo: Contrato
+  - Prioridad: P0
+  - Estimación: S
+  - Responsable: C
+  - Dependencias: Ninguna
+  - Criterio de aceptación: documento de esquema con campos obligatorios y opcionales.
+- ID: M1-T09
+  - Título: Implementar levelLoader con levelIndex
+  - Tipo: Feature técnica
+  - Prioridad: P0
+  - Estimación: M
+  - Responsable: C
+  - Dependencias: M1-T08
+  - Criterio de aceptación: carga nivel por ID desde índice JSON.
+- ID: M1-T10
+  - Título: Implementar levelValidator v1
+  - Tipo: Calidad
+  - Prioridad: P0
+  - Estimación: M
+  - Responsable: C
+  - Dependencias: M1-T08
+  - Criterio de aceptación: valida límites, coordenadas y comandos permitidos.
+- ID: M1-T11
+  - Título: Migrar nivel actual a level-001.json
+  - Tipo: Migración contenido
+  - Prioridad: P0
+  - Estimación: S
+  - Responsable: C
+  - Dependencias: M1-T09, M1-T10
+  - Criterio de aceptación: nivel 1 se ejecuta igual que en prototipo.
+- ID: M1-T12
+  - Título: Crear level-002 y level-003 de prueba
+  - Tipo: Contenido
+  - Prioridad: P1
+  - Estimación: M
+  - Responsable: C
+  - Dependencias: M1-T11
+  - Criterio de aceptación: tres niveles jugables sin tocar lógica.
+
+#### Epic M1-E4: Adaptación UI al nuevo core
+- ID: M1-T13
+  - Título: Crear uiController desacoplado
+  - Tipo: Refactor
+  - Prioridad: P0
+  - Estimación: M
+  - Responsable: B
+  - Dependencias: M1-T03, M1-T04
+  - Criterio de aceptación: UI suscribe eventos del motor y despacha acciones.
+- ID: M1-T14
+  - Título: Separar gridView, hudView, modalView
+  - Tipo: Refactor
+  - Prioridad: P1
+  - Estimación: M
+  - Responsable: B
+  - Dependencias: M1-T13
+  - Criterio de aceptación: cada vista tiene responsabilidades aisladas.
+- ID: M1-T15
+  - Título: Mantener ranking y storage en storageService
+  - Tipo: Refactor
+  - Prioridad: P1
+  - Estimación: S
+  - Responsable: B
+  - Dependencias: M1-T13
+  - Criterio de aceptación: acceso a localStorage centralizado.
+
+#### Epic M1-E5: Integración y hardening
+- ID: M1-T16
+  - Título: Prueba de regresión funcional nivel 1
+  - Tipo: QA
+  - Prioridad: P0
+  - Estimación: S
+  - Responsable: B
+  - Dependencias: M1-T14, M1-T15
+  - Criterio de aceptación: flujo completo gana/pierde/ranking/retry funcional.
+- ID: M1-T17
+  - Título: Checklist técnico de salida MVP1
+  - Tipo: QA
+  - Prioridad: P0
+  - Estimación: XS
+  - Responsable: A
+  - Dependencias: M1-T07, M1-T12, M1-T16
+  - Criterio de aceptación: cumplimiento de criterios del MVP1 firmado por los 3.
+
+### MVP2 - Editor de acciones robusto
+
+#### Epic M2-E1: Modelo interno del editor
+- ID: M2-T01
+  - Título: Definir AST simple de secuencia y bloques
+  - Tipo: Contrato
+  - Prioridad: P0
+  - Estimación: M
+  - Responsable: A
+  - Dependencias: M1-T06
+  - Criterio de aceptación: representación estable con serializer/deserializer.
+- ID: M2-T02
+  - Título: Integrar evaluator con AST
+  - Tipo: Feature técnica
+  - Prioridad: P0
+  - Estimación: M
+  - Responsable: A
+  - Dependencias: M2-T01
+  - Criterio de aceptación: executionPlan deriva del AST, no del DOM.
+
+#### Epic M2-E2: UX del editor
+- ID: M2-T03
+  - Título: Implementar commandPalette modular
+  - Tipo: UI
+  - Prioridad: P1
+  - Estimación: S
+  - Responsable: B
+  - Dependencias: M2-T01
+  - Criterio de aceptación: paleta renderizada por comandos habilitados del nivel.
+- ID: M2-T04
+  - Título: Implementar blockEditor con bloques colapsables
+  - Tipo: UI
+  - Prioridad: P0
+  - Estimación: L
+  - Responsable: B
+  - Dependencias: M2-T01
+  - Criterio de aceptación: edición visual por bloque y reordenamiento funcional.
+- ID: M2-T05
+  - Título: Soporte drag and drop de comandos
+  - Tipo: UI
+  - Prioridad: P1
+  - Estimación: M
+  - Responsable: B
+  - Dependencias: M2-T04
+  - Criterio de aceptación: usuario puede mover comandos dentro y entre bloques.
+- ID: M2-T06
+  - Título: Implementar undo/redo en editor
+  - Tipo: Feature
+  - Prioridad: P1
+  - Estimación: M
+  - Responsable: B
+  - Dependencias: M2-T04
+  - Criterio de aceptación: historial estable con límite configurable.
+
+#### Epic M2-E3: Ayudas didácticas
+- ID: M2-T07
+  - Título: Previsualización de trayectoria (simulación)
+  - Tipo: Feature
+  - Prioridad: P0
+  - Estimación: M
+  - Responsable: A
+  - Dependencias: M2-T02
+  - Criterio de aceptación: muestra ruta prevista sin ejecutar partida.
+- ID: M2-T08
+  - Título: Resaltado de comandos sin efecto
+  - Tipo: Feature
+  - Prioridad: P1
+  - Estimación: M
+  - Responsable: B
+  - Dependencias: M2-T07
+  - Criterio de aceptación: marca visual para comandos redundantes o inválidos.
+- ID: M2-T09
+  - Título: Modo explicar solución
+  - Tipo: Feature didáctica
+  - Prioridad: P2
+  - Estimación: M
+  - Responsable: C
+  - Dependencias: M2-T07
+  - Criterio de aceptación: explicación paso a paso en lenguaje simple.
+
+### MVP3 - Campaña y progresión
+
+#### Epic M3-E1: Progreso y desbloqueos
+- ID: M3-T01
+  - Título: Implementar progressionSystem persistente
+  - Tipo: Feature
+  - Prioridad: P0
+  - Estimación: M
+  - Responsable: A
+  - Dependencias: M1-T15
+  - Criterio de aceptación: guarda nivel desbloqueado, estrellas y mejor score.
+- ID: M3-T02
+  - Título: Definir matriz de aprendizaje por nivel
+  - Tipo: Diseño técnico
+  - Prioridad: P0
+  - Estimación: S
+  - Responsable: C
+  - Dependencias: M1-T12
+  - Criterio de aceptación: cada nivel tiene objetivo didáctico explícito.
+
+#### Epic M3-E2: Contenido de campaña
+- ID: M3-T03
+  - Título: Diseñar 10 a 15 niveles JSON
+  - Tipo: Contenido
+  - Prioridad: P0
+  - Estimación: XL
+  - Responsable: C
+  - Dependencias: M3-T02
+  - Criterio de aceptación: niveles validados y ordenados por dificultad.
+- ID: M3-T04
+  - Título: Pantalla selector de niveles
+  - Tipo: UI
+  - Prioridad: P1
+  - Estimación: M
+  - Responsable: B
+  - Dependencias: M3-T01
+  - Criterio de aceptación: muestra bloqueo/desbloqueo y mejor score por nivel.
+- ID: M3-T05
+  - Título: Restricciones por nivel de comandos permitidos
+  - Tipo: Feature
+  - Prioridad: P1
+  - Estimación: S
+  - Responsable: A
+  - Dependencias: M1-T05, M3-T03
+  - Criterio de aceptación: paleta de comandos se adapta al nivel.
+
+### MVP4 - Decisiones y elementos interactivos
+
+#### Epic M4-E1: Nuevos elementos de tablero
+- ID: M4-T01
+  - Título: Implementar elementRegistry v2
+  - Tipo: Feature técnica
+  - Prioridad: P0
+  - Estimación: M
+  - Responsable: A
+  - Dependencias: M1-T05
+  - Criterio de aceptación: soporte wall, trap, key, door, collectible.
+- ID: M4-T02
+  - Título: Lógica de inventario de jugador
+  - Tipo: Feature
+  - Prioridad: P1
+  - Estimación: M
+  - Responsable: A
+  - Dependencias: M4-T01
+  - Criterio de aceptación: llaves y objetos persistidos durante nivel.
+- ID: M4-T03
+  - Título: Render y feedback de elementos interactivos
+  - Tipo: UI
+  - Prioridad: P1
+  - Estimación: M
+  - Responsable: B
+  - Dependencias: M4-T01
+  - Criterio de aceptación: estado visual consistente de puertas, llaves y coleccionables.
+
+#### Epic M4-E2: Decisiones en acciones
+- ID: M4-T04
+  - Título: Añadir comandos condicionales básicos
+  - Tipo: Feature
+  - Prioridad: P0
+  - Estimación: L
+  - Responsable: A
+  - Dependencias: M2-T01
+  - Criterio de aceptación: evalúa al menos dos condiciones (`si pared`, `si llave`).
+- ID: M4-T05
+  - Título: Editor visual de condicionales
+  - Tipo: UI
+  - Prioridad: P1
+  - Estimación: L
+  - Responsable: B
+  - Dependencias: M4-T04
+  - Criterio de aceptación: usuario crea y edita bloques condicionales visualmente.
+- ID: M4-T06
+  - Título: Diseñar niveles con múltiples rutas válidas
+  - Tipo: Contenido
+  - Prioridad: P1
+  - Estimación: M
+  - Responsable: C
+  - Dependencias: M4-T01, M4-T04
+  - Criterio de aceptación: al menos 5 niveles con decisiones reales de estrategia.
+
+### MVP5 - Capa audiovisual
+
+#### Epic M5-E1: Pipeline de sprites
+- ID: M5-T01
+  - Título: Definir atlas y naming convention de sprites
+  - Tipo: Assets/infra
+  - Prioridad: P1
+  - Estimación: S
+  - Responsable: C
+  - Dependencias: Ninguna
+  - Criterio de aceptación: documento de assets y estructura de carpetas estable.
+- ID: M5-T02
+  - Título: Implementar render adapter emoji/sprite
+  - Tipo: Feature técnica
+  - Prioridad: P0
+  - Estimación: M
+  - Responsable: B
+  - Dependencias: M5-T01
+  - Criterio de aceptación: switch configurable sin tocar core.
+
+#### Epic M5-E2: Audio
+- ID: M5-T03
+  - Título: Implementar audioManager con mapa de eventos
+  - Tipo: Feature
+  - Prioridad: P1
+  - Estimación: M
+  - Responsable: C
+  - Dependencias: M1-T04
+  - Criterio de aceptación: reproducir SFX por evento de juego.
+- ID: M5-T04
+  - Título: Control de volumen y mute global
+  - Tipo: Feature UI
+  - Prioridad: P2
+  - Estimación: S
+  - Responsable: B
+  - Dependencias: M5-T03
+  - Criterio de aceptación: configuración persistida por usuario.
+
+### MVP6 - Beta cerrada y hardening
+
+#### Epic M6-E1: Validación con usuarios
+- ID: M6-T01
+  - Título: Protocolo de prueba con niños y docentes
+  - Tipo: QA producto
+  - Prioridad: P0
+  - Estimación: M
+  - Responsable: C
+  - Dependencias: M3-T03
+  - Criterio de aceptación: guion de test y métricas de comprensión.
+- ID: M6-T02
+  - Título: Instrumentación básica de métricas locales
+  - Tipo: Feature técnica
+  - Prioridad: P2
+  - Estimación: M
+  - Responsable: A
+  - Dependencias: M6-T01
+  - Criterio de aceptación: captura intentos, tiempo y tasa de éxito por nivel.
+
+#### Epic M6-E2: Corrección de UX y bugs
+- ID: M6-T03
+  - Título: Barrido de bugs críticos P0/P1
+  - Tipo: QA
+  - Prioridad: P0
+  - Estimación: L
+  - Responsable: A+B+C
+  - Dependencias: M6-T01
+  - Criterio de aceptación: cero bugs bloqueantes abiertos para release.
+- ID: M6-T04
+  - Título: Ajuste final de dificultad y scoring
+  - Tipo: Balance
+  - Prioridad: P1
+  - Estimación: M
+  - Responsable: C
+  - Dependencias: M6-T02
+  - Criterio de aceptación: curva de dificultad validada con usuarios.
+
+### Backlog transversal (siempre activo)
+- ID: BX-T01
+  - Título: Definir plantilla de PR y Definition of Done
+  - Prioridad: P0
+  - Estimación: XS
+  - Responsable: A
+- ID: BX-T02
+  - Título: Convención de ramas y naming de commits
+  - Prioridad: P0
+  - Estimación: XS
+  - Responsable: A
+- ID: BX-T03
+  - Título: Checklist de revisión para no mezclar lógica en UI
+  - Prioridad: P1
+  - Estimación: XS
+  - Responsable: B
+- ID: BX-T04
+  - Título: Guía de authoring de niveles JSON
+  - Prioridad: P1
+  - Estimación: S
+  - Responsable: C
+
+### Primer corte recomendado (2 semanas)
+- Sprint Goal: cerrar base de MVP1 en estado integrable.
+- Compromiso mínimo:
+  - A: M1-T01, M1-T02, M1-T03, M1-T05, M1-T06.
+  - B: M1-T13, M1-T14, M1-T15.
+  - C: M1-T08, M1-T09, M1-T10, M1-T11.
+- Stretch Goal:
+  - C: M1-T12.
+  - A: M1-T07.
+  - B: M1-T16.
+
+### Mapeo sugerido a GitHub Issues
+- Etiquetas por dominio: `core`, `ui`, `editor`, `content`, `audio`, `qa`.
+- Etiquetas por prioridad: `P0`, `P1`, `P2`, `P3`.
+- Milestones: `MVP1` a `MVP6`.
+- Asignación inicial:
+  - Programador A: tareas `core`.
+  - Programador B: tareas `ui` y `editor`.
+  - Programador C: tareas `content`, `audio` y balance.

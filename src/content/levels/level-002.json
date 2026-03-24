@@ -1,0 +1,14 @@
+{
+    "id": "level-002",
+    "name": "Barrera central",
+    "size": { "width": 10, "height": 10 },
+    "player": { "start": { "x": 0, "y": 0 } },
+    "goal": { "x": 9, "y": 9 },
+    "tiles": [
+        { "x": 4, "y": 4, "type": "wall" },
+        { "x": 5, "y": 4, "type": "wall" },
+        { "x": 4, "y": 5, "type": "wall" }
+    ],
+    "rules": { "timeLimit": 60, "requireExactFinish": true },
+    "allowedCommands": ["up", "down", "left", "right", "repeat", "enter"]
+}

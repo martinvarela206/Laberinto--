@@ -1,0 +1,10 @@
+{
+    "id": "level-001",
+    "name": "Primeros pasos",
+    "size": { "width": 5, "height": 5 },
+    "player": { "start": { "x": 0, "y": 0 } },
+    "goal": { "x": 4, "y": 4 },
+    "tiles": [],
+    "rules": { "timeLimit": 60, "requireExactFinish": true },
+    "allowedCommands": ["left", "right"]
+}
