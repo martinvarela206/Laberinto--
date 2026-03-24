@@ -1,0 +1,19 @@
+{
+    "id": "level-005",
+    "name": "Tutorial: Ruta larga",
+    "isTutorial": true,
+    "tutorialIntro": {
+        "title": "Tutorial 5: Repetir bloques",
+        "command": "repeat + enter",
+        "description": "En este nivel aprenderás a repetir una secuencia. Usa enter para separar bloques y repeat para duplicar el bloque actual.",
+        "objective": "Construye una ruta más larga combinando movimientos con repeat y enter para llegar a la meta."
+    },
+    "size": { "width": 7, "height": 3 },
+    "player": { "start": { "x": 0, "y": 0 } },
+    "goal": { "x": 6, "y": 2 },
+    "tiles": [
+        { "x": 3, "y": 1, "type": "wall" }
+    ],
+    "rules": { "timeLimit": 60, "requireExactFinish": true },
+    "allowedCommands": ["right", "down", "repeat", "enter"]
+}

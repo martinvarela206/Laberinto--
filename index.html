@@ -12,7 +12,12 @@
         <header class="glass-header">
             <div class="title">
                 <h1>Laberinto++</h1>
-                <p>Aprende a programar jugando | <span id="level-display" style="color:var(--primary); font-weight:bold;">Nivel 1</span></p>
+                <p>
+                    Aprende a programar jugando |
+                    <span id="level-display" style="color:var(--primary); font-weight:bold;">Nivel 1</span>
+                    |
+                    <span id="level-name-display">Primeros pasos</span>
+                </p>
             </div>
             <div class="stats">
                 <div class="stat-box">
@@ -69,7 +74,7 @@
                     <button id="btn-save-score" class="btn primary-btn">Guardar</button>
                 </div>
 
-                <div class="ranking-section">
+                <div id="ranking-section" class="ranking-section">
                     <h3>🏆 Top 10 Mejores Programadores</h3>
                     <ul id="ranking-list" class="ranking-list">
                         <!-- Ranking list -->
@@ -78,6 +83,16 @@
                 <button id="btn-play-again" class="btn primary-btn mt-3">Jugar de nuevo</button>
                 <button id="btn-next-level" class="btn secondary-btn hidden mt-3">🔼 Subir de Nivel</button>
                 <button id="btn-retry" class="btn secondary-btn hidden mt-3">↩️ Reintentar secuencia</button>
+            </div>
+        </div>
+
+        <div id="tutorial-overlay" class="modal-overlay hidden">
+            <div class="modal glass-panel tutorial-modal">
+                <h2 id="tutorial-title">Tutorial</h2>
+                <p id="tutorial-command" class="tutorial-command-pill">Comando</p>
+                <p id="tutorial-description">Descripción del tutorial.</p>
+                <p id="tutorial-objective" class="tutorial-objective">Objetivo del nivel.</p>
+                <button id="btn-tutorial-continue" class="btn primary-btn mt-3">Entendido</button>
             </div>
         </div>
     </div>

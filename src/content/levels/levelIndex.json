@@ -2,6 +2,10 @@
     "levels": [
         { "id": "level-001", "file": "level-001.json" },
         { "id": "level-002", "file": "level-002.json" },
-        { "id": "level-003", "file": "level-003.json" }
+        { "id": "level-003", "file": "level-003.json" },
+        { "id": "level-004", "file": "level-004.json" },
+        { "id": "level-005", "file": "level-005.json" },
+        { "id": "level-006", "file": "level-006.json" },
+        { "id": "level-007", "file": "level-007.json" }
     ]
 }

@@ -295,6 +295,18 @@ header {
     /* For glow effect around the border */
     outline: 2px solid rgba(239, 68, 68, 0.5);
     outline-offset: 2px;
+    --trail-color: rgba(96, 165, 250, 0.9);
+    --trail-glow: rgba(96, 165, 250, 0.45);
+}
+
+.maze-grid.trail-success {
+    --trail-color: rgba(74, 222, 128, 0.95);
+    --trail-glow: rgba(74, 222, 128, 0.45);
+}
+
+.maze-grid.trail-failure {
+    --trail-color: rgba(248, 113, 113, 0.95);
+    --trail-glow: rgba(248, 113, 113, 0.45);
 }
 
 .cell {
@@ -311,6 +323,77 @@ header {
 
 .cell.path {
     background-color: transparent;
+}
+
+.cell.trail-cell {
+    background-image:
+        linear-gradient(var(--trail-color), var(--trail-color)),
+        linear-gradient(var(--trail-color), var(--trail-color)),
+        linear-gradient(var(--trail-color), var(--trail-color)),
+        linear-gradient(var(--trail-color), var(--trail-color));
+    background-size:
+        16% calc(var(--trail-up, 0) * 50%),
+        16% calc(var(--trail-down, 0) * 50%),
+        calc(var(--trail-left, 0) * 50%) 16%,
+        calc(var(--trail-right, 0) * 50%) 16%;
+    background-position:
+        center top,
+        center bottom,
+        left center,
+        right center;
+    background-repeat: no-repeat;
+    transition: background-size 0.18s ease-out;
+}
+
+.cell.trail-node::after {
+    content: '';
+    position: absolute;
+    width: 34%;
+    height: 34%;
+    border-radius: 999px;
+    background: var(--trail-color);
+    box-shadow: 0 0 12px var(--trail-glow);
+    z-index: 1;
+}
+
+.cell.trail-animate::after {
+    animation: trailPulse 0.22s ease-out;
+}
+
+.cell.trail-exit::before {
+    content: '';
+    position: absolute;
+    width: 34%;
+    height: 20%;
+    background: var(--trail-color);
+    box-shadow: 0 0 10px var(--trail-glow);
+    z-index: 1;
+    opacity: 0;
+    animation: trailExitShow 0.18s ease-out forwards;
+}
+
+.cell.trail-exit-right::before {
+    right: -22%;
+    top: 40%;
+}
+
+.cell.trail-exit-left::before {
+    left: -22%;
+    top: 40%;
+}
+
+.cell.trail-exit-up::before {
+    top: -22%;
+    left: 40%;
+    width: 20%;
+    height: 34%;
+}
+
+.cell.trail-exit-down::before {
+    bottom: -22%;
+    left: 40%;
+    width: 20%;
+    height: 34%;
 }
 
 .cell.wall {
@@ -333,6 +416,8 @@ header {
 .goal {
     font-size: calc(var(--cell-size) * 0.7);
     animation: bounce 2s infinite;
+    position: relative;
+    z-index: 2;
 }
 
 /* Modal */
@@ -370,6 +455,26 @@ header {
 .modal h2 {
     font-size: 2rem;
     margin-bottom: 0.5rem;
+}
+
+.tutorial-modal {
+    max-width: 520px;
+}
+
+.tutorial-command-pill {
+    align-self: center;
+    display: inline-flex;
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    background: rgba(59, 130, 246, 0.18);
+    border: 1px solid rgba(59, 130, 246, 0.45);
+    color: #bfdbfe;
+    font-weight: 700;
+}
+
+.tutorial-objective {
+    color: var(--text-muted);
+    line-height: 1.5;
 }
 
 .score-display {
@@ -447,6 +552,16 @@ header {
 @keyframes bounce {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-10%); }
+}
+
+@keyframes trailPulse {
+    0% { transform: scale(0.2); opacity: 0.3; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes trailExitShow {
+    0% { transform: scale(0.2); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
 }
 
 /* Responsiveness */

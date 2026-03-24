@@ -1,0 +1,17 @@
+{
+    "id": "level-004",
+    "name": "Tutorial: Izquierda",
+    "isTutorial": true,
+    "tutorialIntro": {
+        "title": "Tutorial 4: Izquierda",
+        "command": "left",
+        "description": "En este nivel aprenderás el comando left para desplazarte una celda hacia la izquierda.",
+        "objective": "Comienza desde la derecha y usa left junto con down para alcanzar la meta."
+    },
+    "size": { "width": 7, "height": 3 },
+    "player": { "start": { "x": 6, "y": 0 } },
+    "goal": { "x": 0, "y": 2 },
+    "tiles": [],
+    "rules": { "timeLimit": 60, "requireExactFinish": true },
+    "allowedCommands": ["left", "down"]
+}

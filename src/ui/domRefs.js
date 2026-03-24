@@ -11,15 +11,23 @@ export function getElements() {
         modal: document.getElementById('modal-overlay'),
         modalTitle: document.getElementById('modal-title'),
         modalMessage: document.getElementById('modal-message'),
+        tutorialOverlay: document.getElementById('tutorial-overlay'),
+        tutorialTitle: document.getElementById('tutorial-title'),
+        tutorialCommand: document.getElementById('tutorial-command'),
+        tutorialDescription: document.getElementById('tutorial-description'),
+        tutorialObjective: document.getElementById('tutorial-objective'),
+        btnTutorialContinue: document.getElementById('btn-tutorial-continue'),
         modalScore: document.getElementById('modal-score'),
         finalScore: document.getElementById('final-score'),
         nameInputGroup: document.getElementById('name-input-group'),
         playerName: document.getElementById('player-name'),
         btnSaveScore: document.getElementById('btn-save-score'),
+        rankingSection: document.getElementById('ranking-section'),
         rankingList: document.getElementById('ranking-list'),
         btnPlayAgain: document.getElementById('btn-play-again'),
         btnNextLevel: document.getElementById('btn-next-level'),
         btnRetry: document.getElementById('btn-retry'),
-        levelDisplay: document.getElementById('level-display')
+        levelDisplay: document.getElementById('level-display'),
+        levelNameDisplay: document.getElementById('level-name-display')
     };
 }

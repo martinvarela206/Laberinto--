@@ -1,10 +1,17 @@
 {
     "id": "level-001",
     "name": "Primeros pasos",
-    "size": { "width": 5, "height": 5 },
+    "isTutorial": true,
+    "tutorialIntro": {
+        "title": "Tutorial 1: Mover a la derecha",
+        "command": "right",
+        "description": "Este nivel te enseña el comando right. Cada vez que lo uses, el robot avanzará una celda hacia la derecha.",
+        "objective": "Llega hasta la meta avanzando en línea recta usando solamente right."
+    },
+    "size": { "width": 5, "height": 1 },
     "player": { "start": { "x": 0, "y": 0 } },
-    "goal": { "x": 4, "y": 4 },
+    "goal": { "x": 4, "y": 0 },
     "tiles": [],
     "rules": { "timeLimit": 60, "requireExactFinish": true },
-    "allowedCommands": ["down", "right"]
+    "allowedCommands": ["right"]
 }

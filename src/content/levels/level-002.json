@@ -1,14 +1,17 @@
 {
     "id": "level-002",
-    "name": "Barrera central",
-    "size": { "width": 10, "height": 10 },
+    "name": "Tutorial: Giro simple",
+    "isTutorial": true,
+    "tutorialIntro": {
+        "title": "Tutorial 2: Bajar",
+        "command": "down",
+        "description": "Ahora aprenderás el comando down. Sirve para mover al robot una celda hacia abajo y combinarlo con right.",
+        "objective": "Avanza hacia la derecha y luego baja para alcanzar la meta."
+    },
+    "size": { "width": 6, "height": 2 },
     "player": { "start": { "x": 0, "y": 0 } },
-    "goal": { "x": 9, "y": 9 },
-    "tiles": [
-        { "x": 4, "y": 4, "type": "wall" },
-        { "x": 5, "y": 4, "type": "wall" },
-        { "x": 4, "y": 5, "type": "wall" }
-    ],
+    "goal": { "x": 5, "y": 1 },
+    "tiles": [],
     "rules": { "timeLimit": 60, "requireExactFinish": true },
-    "allowedCommands": ["up", "down", "left", "right", "repeat", "enter"]
+    "allowedCommands": ["right", "down"]
 }

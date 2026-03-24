@@ -7,6 +7,7 @@ function normalizeLevel(levelData) {
     return {
         id: levelData.id,
         name: levelData.name,
+        isTutorial: levelData.isTutorial === true || levelData.tutorial === true,
         width: size.width,
         height: size.height,
         playerStart: deepClone(player.start),
@@ -14,6 +15,7 @@ function normalizeLevel(levelData) {
         walls: deepClone((levelData.tiles || []).filter((tile) => tile.type === 'wall').map((tile) => ({ x: tile.x, y: tile.y }))),
         rules: deepClone(levelData.rules || { timeLimit: 60 }),
         allowedCommands: deepClone(levelData.allowedCommands || []),
+        tutorialIntro: deepClone(levelData.tutorialIntro || null),
         raw: deepClone(levelData)
     };
 }
