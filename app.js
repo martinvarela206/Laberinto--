@@ -342,7 +342,7 @@ function gameOver(isWin, msg) {
     stopTimer();
     
     els.modal.classList.remove('hidden');
-    els.modalTitle.innerText = isWin ? '¡Nivel Completado! 🌟' : '¡Derrota! 💀';
+    els.modalTitle.innerText = isWin ? '¡Nivel Completado! 🌟' : '¡Error de programación! 💀';
     els.modalTitle.style.color = isWin ? '#4ade80' : '#ef4444';
     els.modalMessage.innerText = msg;
     

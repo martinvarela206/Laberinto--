@@ -461,6 +461,98 @@ header {
     max-width: 520px;
 }
 
+.lore-modal {
+    max-width: 640px;
+    text-align: left;
+    gap: 1.25rem;
+    background:
+        linear-gradient(180deg, rgba(15, 23, 42, 0.96), rgba(30, 41, 59, 0.92)),
+        radial-gradient(circle at top left, rgba(59, 130, 246, 0.18), transparent 45%);
+}
+
+.lore-hero {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.lore-robot {
+    width: 4.5rem;
+    height: 4.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.28), rgba(14, 165, 233, 0.14));
+    border: 1px solid rgba(125, 211, 252, 0.35);
+    font-size: 2.2rem;
+    box-shadow: 0 0 24px rgba(59, 130, 246, 0.15);
+}
+
+.lore-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.lore-kicker {
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid rgba(96, 165, 250, 0.35);
+    background: rgba(59, 130, 246, 0.12);
+    color: #bfdbfe;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.lore-text {
+    color: var(--text-main);
+    line-height: 1.65;
+}
+
+.lore-highlight {
+    color: #dbeafe;
+    border-left: 3px solid rgba(96, 165, 250, 0.6);
+    padding-left: 1rem;
+}
+
+.lore-progress {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.lore-dot {
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.lore-dot.active {
+    background: #60a5fa;
+    transform: scale(1.2);
+}
+
+.lore-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.lore-actions .btn {
+    flex: 1;
+    min-width: 160px;
+}
+
+.lore-actions .btn.hidden {
+    display: none !important;
+}
+
 .tutorial-command-pill {
     align-self: center;
     display: inline-flex;
@@ -475,6 +567,17 @@ header {
 .tutorial-objective {
     color: var(--text-muted);
     line-height: 1.5;
+}
+
+@media (max-width: 700px) {
+    .lore-hero {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .lore-actions {
+        flex-direction: column;
+    }
 }
 
 .score-display {

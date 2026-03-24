@@ -11,20 +11,55 @@ import { renderSequence } from './ui/sequenceView.js';
 import { connectTrailCells, markTrailCell, renderGrid, setTrailExit, setTrailState, updatePlayerPosition } from './ui/gridView.js';
 import { renderRanking } from './ui/rankingView.js';
 import { delay } from './utils/delay.js';
-import { loadRanking, saveRanking } from './services/storageService.js';
+import {
+    hasSeenLore,
+    loadGameProgress,
+    loadRanking,
+    markLoreSeen,
+    saveLastCompletedLevel,
+    saveRanking
+} from './services/storageService.js';
 
 let state;
 let levelOrder = ['level-001'];
 let tutorialFlagsByLevelId = new Map();
+let loreOverlayVisible = false;
+let loreShown = false;
+let currentLoreStep = 0;
+let startOverlayPending = true;
 let tutorialOverlayVisible = false;
 const els = getElements();
 const PREVIEW_DELAY_VICTORY = 1400;
 const PREVIEW_DELAY_DEFEAT = 1500;
 const PREVIEW_DELAY_NO_GOAL = 1100;
+const LORE_STEPS = [
+    {
+        kicker: 'Instituto de Informática',
+        title: 'Bienvenido a Laberinto++',
+        description: 'Este es un juego didáctico desarrollado por el Instituto de Informática de la Facultad de Ciencias Exactas, Físicas y Naturales de la Universidad Nacional de San Juan.',
+        story: 'Aquí comienza la misión de un pequeño robot que todavía no entiende cómo moverse por el laberinto.',
+        objective: 'Cada comando que programes será una nueva lección para enseñarle a avanzar.'
+    },
+    {
+        kicker: 'Proyecto de aprendizaje',
+        title: 'Un robot que debe aprender',
+        description: 'El robot no improvisa: necesita instrucciones claras, ordenadas y precisas para no chocar, no perderse y llegar a la meta.',
+        story: 'Primero aprenderá movimientos simples, luego patrones más complejos y estrategias para resolver recorridos más difíciles.',
+        objective: 'Tu trabajo será pensar como programador y construir secuencias que el robot pueda ejecutar con éxito.'
+    },
+    {
+        kicker: 'Tu misión',
+        title: 'Tú eres su programador',
+        description: 'Te hemos contratado para entrenar al robot paso a paso. Si programas bien, avanzará. Si te equivocas, aprenderás del error y volverás a intentarlo.',
+        story: 'Cuando superes niveles, el robot recordará hasta dónde llegó y podrás continuar desde ese progreso.',
+        objective: 'Elige Iniciar para comenzar desde el principio o Continuar para retomar desde el próximo nivel disponible.'
+    }
+];
 
 async function init() {
     const levelIndex = await loadLevelIndex();
     levelOrder = levelIndex.levels.map((item) => item.id);
+    loreShown = hasSeenLore();
 
     tutorialFlagsByLevelId = new Map();
     for (const levelId of levelOrder) {
@@ -55,6 +90,9 @@ function bindEvents() {
     els.btnNextLevel.addEventListener('click', nextLevel);
     els.btnRetry.addEventListener('click', retryLevel);
     els.btnSaveScore.addEventListener('click', saveScoreHandler);
+    els.btnLoreNext.addEventListener('click', advanceLoreIntro);
+    els.btnLoreStart.addEventListener('click', startFromBeginning);
+    els.btnLoreContinue.addEventListener('click', continueGame);
     els.btnTutorialContinue.addEventListener('click', hideTutorialIntro);
 }
 
@@ -84,7 +122,11 @@ function resetState() {
     updatePlayerPosition(state.position);
     updateSequenceUI();
     startTimer();
-    showTutorialIntroIfNeeded();
+    showIntroOverlayIfNeeded();
+}
+
+function isIntroOverlayVisible() {
+    return loreOverlayVisible || tutorialOverlayVisible;
 }
 
 function getAvailableCommands() {
@@ -98,7 +140,7 @@ function getAvailableCommands() {
 function startTimer() {
     stopTimer();
     state.intervalId = setInterval(() => {
-        if (!state.playing && !state.isGameOver) {
+        if (!state.playing && !state.isGameOver && !isIntroOverlayVisible()) {
             state.timer--;
             els.timeCount.innerText = String(state.timer);
             if (state.timer <= 0) {
@@ -181,6 +223,21 @@ function findFirstNonTutorialLevelId() {
     return null;
 }
 
+function getContinueLevelId() {
+    const { lastCompletedLevelId } = loadGameProgress();
+
+    if (!lastCompletedLevelId) {
+        return null;
+    }
+
+    const lastCompletedIndex = levelOrder.indexOf(lastCompletedLevelId);
+    if (lastCompletedIndex < 0) {
+        return levelOrder[0] || null;
+    }
+
+    return levelOrder[lastCompletedIndex + 1] || levelOrder[lastCompletedIndex] || null;
+}
+
 function resolveLevelNumber(levelId) {
     const indexInOrder = levelOrder.indexOf(levelId);
     if (indexInOrder >= 0) {
@@ -236,13 +293,114 @@ function showTutorialIntroIfNeeded() {
     els.tutorialOverlay.classList.remove('hidden');
 }
 
+function showLoreIntroIfNeeded() {
+    if (!els.loreOverlay) {
+        loreOverlayVisible = false;
+        return false;
+    }
+
+    currentLoreStep = loreShown ? LORE_STEPS.length - 1 : 0;
+    renderLoreStep();
+    loreOverlayVisible = true;
+    els.loreOverlay.classList.remove('hidden');
+    return true;
+}
+
+function showIntroOverlayIfNeeded() {
+    if (!startOverlayPending) {
+        showTutorialIntroIfNeeded();
+        return;
+    }
+
+    if (showLoreIntroIfNeeded()) {
+        tutorialOverlayVisible = false;
+        return;
+    }
+
+    showTutorialIntroIfNeeded();
+}
+
+function closeStartOverlay() {
+    markLoreSeen();
+    loreShown = true;
+    startOverlayPending = false;
+    loreOverlayVisible = false;
+    els.loreOverlay.classList.add('hidden');
+}
+
+function hideLoreIntro() {
+    closeStartOverlay();
+    showTutorialIntroIfNeeded();
+}
+
+function renderLoreStep() {
+    const step = LORE_STEPS[currentLoreStep] || LORE_STEPS[0];
+    const canContinueGame = Boolean(getContinueLevelId());
+
+    els.loreKicker.innerText = step.kicker;
+    els.loreTitle.innerText = step.title;
+    els.loreDescription.innerText = step.description;
+    els.loreStory.innerText = step.story;
+    els.loreObjective.innerText = step.objective;
+
+    if (els.loreProgress) {
+        els.loreProgress.innerHTML = '';
+        LORE_STEPS.forEach((_, index) => {
+            const dot = document.createElement('span');
+            dot.className = `lore-dot${index === currentLoreStep ? ' active' : ''}`;
+            els.loreProgress.appendChild(dot);
+        });
+    }
+
+    const isLastStep = currentLoreStep >= LORE_STEPS.length - 1;
+    els.btnLoreNext.classList.toggle('hidden', isLastStep);
+    els.btnLoreStart.classList.toggle('hidden', !isLastStep);
+    els.btnLoreContinue.classList.toggle('hidden', !isLastStep || !canContinueGame);
+}
+
+function advanceLoreIntro() {
+    if (currentLoreStep >= LORE_STEPS.length - 1) {
+        return;
+    }
+
+    currentLoreStep += 1;
+    renderLoreStep();
+}
+
+async function loadLevelIntoState(levelId) {
+    const safeLevelId = levelId || levelOrder[0];
+    const levelData = await loadLevelById(safeLevelId);
+
+    tutorialFlagsByLevelId.set(safeLevelId, levelData.isTutorial === true);
+    setLevel(state, levelData, resolveLevelNumber(safeLevelId));
+    resetState();
+    loadAndRenderRanking();
+}
+
+function startFromBeginning() {
+    hideLoreIntro();
+}
+
+async function continueGame() {
+    const continueLevelId = getContinueLevelId();
+
+    closeStartOverlay();
+
+    if (!continueLevelId) {
+        showTutorialIntroIfNeeded();
+        return;
+    }
+
+    await loadLevelIntoState(continueLevelId);
+}
+
 function hideTutorialIntro() {
     tutorialOverlayVisible = false;
     els.tutorialOverlay.classList.add('hidden');
 }
 
 function addCommand(commandId) {
-    if (state.playing || tutorialOverlayVisible) {
+    if (state.playing || isIntroOverlayVisible()) {
         return;
     }
 
@@ -256,7 +414,7 @@ function addCommand(commandId) {
 }
 
 function undoCommand() {
-    if (state.playing || tutorialOverlayVisible || state.sequence.length === 0) {
+    if (state.playing || isIntroOverlayVisible() || state.sequence.length === 0) {
         return;
     }
 
@@ -266,7 +424,7 @@ function undoCommand() {
 }
 
 function removeCommand(index) {
-    if (state.playing || tutorialOverlayVisible || els.btnRun.classList.contains('retry-mode')) {
+    if (state.playing || isIntroOverlayVisible() || els.btnRun.classList.contains('retry-mode')) {
         return;
     }
 
@@ -280,7 +438,7 @@ function updateSequenceUI() {
 }
 
 async function startRun() {
-    if (tutorialOverlayVisible || state.sequence.length === 0) {
+    if (isIntroOverlayVisible() || state.sequence.length === 0) {
         return;
     }
 
@@ -426,11 +584,13 @@ function gameOver(isWin, message) {
 
     els.modal.classList.remove('hidden');
     els.btnNextLevel.classList.add('hidden');
-    els.modalTitle.innerText = isWin ? '¡Nivel Completado! 🌟' : '¡Derrota! 💀';
+    els.modalTitle.innerText = isWin ? '¡Nivel Completado! 🌟' : '¡Error de programación! 💀';
     els.modalTitle.style.color = isWin ? '#4ade80' : '#ef4444';
     els.modalMessage.innerText = message;
 
     if (isWin) {
+        saveLastCompletedLevel(getCurrentLevelId());
+
         if (isTutorialLevel()) {
             if (isTutorialMilestoneCompleted()) {
                 els.modalTitle.innerText = '¡Tutoriales Completados! 🎉';
@@ -547,22 +707,13 @@ async function nextLevel() {
         }
 
         if (pointsLevelData.isTutorial === false) {
-            setLevel(state, pointsLevelData, resolveLevelNumber(pointsLevelId));
-            resetState();
-            loadAndRenderRanking();
+            await loadLevelIntoState(pointsLevelId);
             return;
         }
     }
 
     const nextLevelNumber = state.levelNumber >= levelOrder.length ? 1 : state.levelNumber + 1;
-    const nextLevelId = levelOrder[nextLevelNumber - 1];
-    const levelData = await loadLevelById(nextLevelId);
-
-    tutorialFlagsByLevelId.set(nextLevelId, levelData.isTutorial === true);
-
-    setLevel(state, levelData, nextLevelNumber);
-    resetState();
-    loadAndRenderRanking();
+    await loadLevelIntoState(levelOrder[nextLevelNumber - 1]);
 }
 
 init();
