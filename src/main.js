@@ -1,8 +1,7 @@
-import { createInitialState, resetRoundState } from './core/gameState.js';
+import { createInitialState, resetRoundState, setLevel } from './core/gameState.js';
 import { evaluateSequence } from './core/commandEvaluator.js';
 import { checkCollisions } from './core/collisionSystem.js';
 import { calculateScore } from './core/scoringSystem.js';
-import { addBlockingObstacleFromPath } from './core/progressionSystem.js';
 import { getCommands, getCommandById, getExecutableCommandById } from './content/commands/commandRegistry.js';
 import { getElementById } from './content/elements/elementRegistry.js';
 import { loadLevelById, loadLevelIndex } from './content/levels/levelLoader.js';
@@ -26,7 +25,6 @@ async function init() {
     state = createInitialState(levelData);
 
     bindEvents();
-    renderCommandPalette(els.commandsBank, getCommands(), addCommand);
     resetState();
     loadAndRenderRanking();
 
@@ -57,12 +55,21 @@ function resetState() {
 
     els.btnUndo.disabled = false;
     els.commandsBank.style.pointerEvents = 'auto';
+    renderCommandPalette(els.commandsBank, getAvailableCommands(), addCommand);
 
     const goal = getElementById('goal');
     renderGrid(els.gridContainer, state.level, goal ? goal.icon : '🏁');
     updatePlayerPosition(state.position);
     updateSequenceUI();
     startTimer();
+}
+
+function getAvailableCommands() {
+    if (!Array.isArray(state.level.allowedCommands) || state.level.allowedCommands.length === 0) {
+        return getCommands();
+    }
+
+    return getCommands().filter((command) => state.level.allowedCommands.includes(command.id));
 }
 
 function startTimer() {
@@ -88,6 +95,10 @@ function stopTimer() {
 
 function addCommand(commandId) {
     if (state.playing) {
+        return;
+    }
+
+    if (!getAvailableCommands().some((command) => command.id === commandId)) {
         return;
     }
 
@@ -192,18 +203,9 @@ async function startRun() {
 
 async function resetLevel() {
     state.playing = false;
-    state.levelNumber = 1;
 
     const levelData = await loadLevelById(levelOrder[0]);
-    state.level = {
-        ...state.level,
-        width: levelData.size.width,
-        height: levelData.size.height,
-        playerStart: { ...levelData.player.start },
-        goal: { ...levelData.goal },
-        walls: (levelData.tiles || []).filter((tile) => tile.type === 'wall').map((tile) => ({ x: tile.x, y: tile.y })),
-        rules: { ...levelData.rules }
-    };
+    setLevel(state, levelData, 1);
 
     resetState();
     loadAndRenderRanking();
@@ -292,12 +294,15 @@ function loadAndRenderRanking() {
     renderRanking(els.rankingList, ranking);
 }
 
-function nextLevel() {
+async function nextLevel() {
     els.modal.classList.add('hidden');
     els.btnNextLevel.classList.add('hidden');
 
-    state.levelNumber++;
-    state.level = addBlockingObstacleFromPath(state.level, state.pathTaken);
+    const nextLevelNumber = state.levelNumber >= levelOrder.length ? 1 : state.levelNumber + 1;
+    const nextLevelId = levelOrder[nextLevelNumber - 1];
+    const levelData = await loadLevelById(nextLevelId);
+
+    setLevel(state, levelData, nextLevelNumber);
     resetState();
     loadAndRenderRanking();
 }

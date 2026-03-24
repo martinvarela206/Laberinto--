@@ -6,5 +6,5 @@
     "goal": { "x": 4, "y": 4 },
     "tiles": [],
     "rules": { "timeLimit": 60, "requireExactFinish": true },
-    "allowedCommands": ["left", "right"]
+    "allowedCommands": ["down", "right"]
 }
