@@ -3,7 +3,6 @@ export function getElements() {
         commandsBank: document.getElementById('commands-bank'),
         sequenceContainer: document.getElementById('sequence-container'),
         gridContainer: document.getElementById('grid-container'),
-        btnUndo: document.getElementById('btn-undo'),
         btnRun: document.getElementById('btn-run'),
         btnReset: document.getElementById('btn-reset'),
         timeCount: document.getElementById('time-count'),

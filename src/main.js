@@ -51,7 +51,7 @@ const LORE_STEPS = [
     },
     {
         kicker: 'Tu misión',
-        title: 'Tú eres debes programarlo',
+        title: 'Tú debes programarlo',
         description: 'Te hemos contratado para entrenar al robot paso a paso. Si programas bien, avanzará. Si te equivocas, aprenderás del error y volverás a intentarlo.',
         story: 'Cuando superes niveles, el robot recordará hasta dónde llegó y podrás continuar desde ese progreso.',
         objective: 'Elige Iniciar para comenzar desde el principio o Continuar para retomar desde el próximo nivel disponible.'
@@ -85,7 +85,6 @@ async function init() {
 }
 
 function bindEvents() {
-    els.btnUndo.addEventListener('click', undoCommand);
     els.btnRun.addEventListener('click', startRun);
     els.btnReset.addEventListener('click', resetLevel);
     els.btnPlayAgain.addEventListener('click', playAgain);
@@ -115,7 +114,6 @@ function resetState() {
     els.btnRun.classList.remove('secondary-btn', 'retry-mode');
     els.btnRun.classList.add('primary-btn');
 
-    els.btnUndo.disabled = false;
     els.commandsBank.style.pointerEvents = 'auto';
     renderCommandPalette(els.commandsBank, getAvailableCommands(), addCommand);
 
@@ -434,16 +432,6 @@ function addCommand(commandId) {
     updateSequenceUI();
 }
 
-function undoCommand() {
-    if (state.playing || isIntroOverlayVisible() || state.sequence.length === 0) {
-        return;
-    }
-
-    state.sequence.pop();
-    state.commandsUsed = state.sequence.length;
-    updateSequenceUI();
-}
-
 function removeCommand(index) {
     if (state.playing || isIntroOverlayVisible() || els.btnRun.classList.contains('retry-mode')) {
         return;
@@ -468,7 +456,6 @@ async function startRun() {
 
     state.playing = true;
     els.btnRun.disabled = true;
-    els.btnUndo.disabled = true;
     els.commandsBank.style.pointerEvents = 'none';
 
     const executionPlan = evaluateSequenceWithOrigin(state.sequence);
@@ -742,7 +729,6 @@ function enableGamePanel() {
     els.btnRun.innerHTML = '▶️ Ejecutar';
     els.btnRun.classList.remove('secondary-btn', 'retry-mode');
     els.btnRun.classList.add('primary-btn');
-    els.btnUndo.disabled = false;
     els.commandsBank.style.pointerEvents = 'auto';
     startTimer();
 }
@@ -765,7 +751,6 @@ function retryLevel() {
     els.btnRun.classList.remove('secondary-btn', 'retry-mode');
     els.btnRun.classList.add('primary-btn');
 
-    els.btnUndo.disabled = false;
     els.commandsBank.style.pointerEvents = 'auto';
 
     const goal = getElementById('goal');
