@@ -2,6 +2,40 @@
 
 PORT=${1:-8000}
 
+is_port_in_use() {
+  local port="$1"
+
+  if command -v ss >/dev/null; then
+    ss -ltn 2>/dev/null | awk '{print $4}' | grep -Eq "(^|:)$port$"
+    return $?
+  fi
+
+  if command -v lsof >/dev/null; then
+    lsof -iTCP:"$port" -sTCP:LISTEN >/dev/null 2>&1
+    return $?
+  fi
+
+  # If we cannot verify, assume free and let the server command fail with details.
+  return 1
+}
+
+pick_available_port() {
+  local candidate="$1"
+  local max_attempts=20
+  local attempts=0
+
+  while is_port_in_use "$candidate"; do
+    attempts=$((attempts + 1))
+    if [ "$attempts" -ge "$max_attempts" ]; then
+      return 1
+    fi
+    candidate=$((candidate + 1))
+  done
+
+  PORT="$candidate"
+  return 0
+}
+
 open_browser() {
   URL="http://localhost:$PORT"
   if command -v xdg-open >/dev/null; then
@@ -12,6 +46,15 @@ open_browser() {
 }
 
 echo "Intentando iniciar servidor en puerto $PORT..."
+
+if ! pick_available_port "$PORT"; then
+  echo "No se encontró un puerto libre entre $PORT y $((PORT + 19))."
+  exit 1
+fi
+
+if [ "$PORT" != "${1:-8000}" ]; then
+  echo "Puerto ocupado detectado. Usando puerto alternativo: $PORT"
+fi
 
 # Python
 if command -v python3 >/dev/null; then
