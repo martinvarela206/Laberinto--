@@ -16,6 +16,7 @@ function normalizeLevel(levelData) {
         rules: deepClone(levelData.rules || { timeLimit: 60 }),
         allowedCommands: deepClone(levelData.allowedCommands || []),
         tutorialIntro: deepClone(levelData.tutorialIntro || null),
+        initialSequence: deepClone(levelData.initialSequence || null),
         raw: deepClone(levelData)
     };
 }
@@ -23,8 +24,10 @@ function normalizeLevel(levelData) {
 export function createInitialState(levelData) {
     const level = normalizeLevel(levelData);
 
+    const initialSequence = deepClone(level.initialSequence) || [];
+
     return {
-        sequence: [],
+        sequence: initialSequence,
         position: deepClone(level.playerStart),
         playing: false,
         isGameOver: false,
@@ -33,7 +36,7 @@ export function createInitialState(levelData) {
         level,
         levelNumber: 1,
         pathTaken: [],
-        commandsUsed: 0
+        commandsUsed: initialSequence.length
     };
 }
 
@@ -43,8 +46,8 @@ export function setLevel(state, levelData, levelNumber) {
     state.position = deepClone(state.level.playerStart);
     state.timer = state.level.rules.timeLimit || 60;
     state.pathTaken = [];
-    state.sequence = [];
-    state.commandsUsed = 0;
+    state.sequence = deepClone(state.level.initialSequence) || [];
+    state.commandsUsed = state.sequence.length;
     state.playing = false;
     state.isGameOver = false;
 }
@@ -55,6 +58,6 @@ export function resetRoundState(state) {
     state.isGameOver = false;
     state.timer = state.level.rules.timeLimit || 60;
     state.pathTaken = [];
-    state.sequence = [];
-    state.commandsUsed = 0;
+    state.sequence = deepClone(state.level.initialSequence) || [];
+    state.commandsUsed = state.sequence.length;
 }

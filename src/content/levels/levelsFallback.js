@@ -5,6 +5,7 @@ export const LEVEL_INDEX_FALLBACK = {
         { id: 'level-003', file: 'level-003.json' },
         { id: 'level-004', file: 'level-004.json' },
         { id: 'level-005', file: 'level-005.json' },
+        { id: 'level-008', file: 'level-008.json' },
         { id: 'level-006', file: 'level-006.json' },
         { id: 'level-007', file: 'level-007.json' }
     ]
@@ -97,6 +98,24 @@ export const LEVELS_FALLBACK = {
         ],
         rules: { timeLimit: 60, requireExactFinish: true },
         allowedCommands: ['right', 'down', 'repeat', 'enter']
+    },
+    'level-008': {
+        id: 'level-008',
+        name: 'Tutorial: Borrar comandos',
+        isTutorial: true,
+        tutorialIntro: {
+            title: 'Tutorial 6: Corregir un programa',
+            command: 'clic',
+            description: 'El robot recibio un programa con un error: tiene un comando de mas que lo hace caer del camino. Para eliminar un comando de la secuencia, haz clic sobre el.',
+            objective: 'Encuentra el comando incorrecto en la secuencia, eliminalo con un clic, y luego ejecuta el programa corregido para que el robot llegue a la meta.'
+        },
+        size: { width: 4, height: 1 },
+        player: { start: { x: 0, y: 0 } },
+        goal: { x: 3, y: 0 },
+        tiles: [],
+        initialSequence: ['right', 'right', 'right', 'right'],
+        rules: { timeLimit: 90, requireExactFinish: true },
+        allowedCommands: ['right']
     },
     'level-006': {
         id: 'level-006',
