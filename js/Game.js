@@ -106,31 +106,39 @@ function gameOver(isWin, msg) {
             modalUI.showNextLevel();
         }
     } else {
-        // Para derrotas NO críticas (no alcanzó objetivo), mostrar marcador y vista previa
-        if (msg === "La secuencia terminó, pero no alcanzaste la meta.") {
+        const isNonCriticalFailure =
+            msg.includes('no alcanzaste') ||
+            msg.includes('caíste') ||
+            msg.includes('Chocaste');
+
+        if (isNonCriticalFailure) {
             const els = getDOMRefs();
-            els.modal.classList.add('hidden');
-            
-            // Guardar posición del fallo para mostrar X
             gameState.failureMarkerPosition = { ...gameState.position };
             gridRenderer.setTrailState('failure');
-            
-            // Esperar 2 segundos, mostrar marcador X, luego mostrar modal
+
+            // Vista previa breve y regreso al tablero con la X de fallo.
             setTimeout(() => {
+                gridRenderer.clearTrailState();
+                gameState.position = { ...gameState.level.playerStart };
+                gridRenderer.updatePlayerPosition();
                 markFailurePosition(gameState.failureMarkerPosition);
-                els.modal.classList.remove('hidden');
-                modalUI.showLose(msg);
+                enableGamePanel();
+                els.modal.classList.add('hidden');
             }, 2000);
-        } else {
-            // Derrotas críticas (fuera de límites, colisión) - mostrar modal inmediatamente
-            modalUI.showLose(msg);
+            return;
         }
+
+        modalUI.showLose(msg);
     }
 }
 
 async function startRun() {
     const els = getDOMRefs();
     if (gameState.sequence.length === 0) return;
+
+    clearFailureMarker();
+    gridRenderer.clearTrailState();
+    gameState.pathTaken = [];
 
     gameState.playing = true;
     els.btnRun.disabled = true;
@@ -320,6 +328,21 @@ function clearFailureMarker() {
         marker.remove();
     }
     gameState.failureMarkerPosition = null;
+}
+
+/**
+ * Habilitar el panel de juego tras una derrota no crítica.
+ */
+function enableGamePanel() {
+    const els = getDOMRefs();
+    gameState.isGameOver = false;
+    els.btnRun.disabled = false;
+    els.btnRun.innerHTML = '▶️ Ejecutar';
+    els.btnRun.classList.remove('secondary-btn', 'retry-mode');
+    els.btnRun.classList.add('primary-btn');
+    els.btnUndo.disabled = false;
+    els.commandsBank.style.pointerEvents = 'auto';
+    startTimer();
 }
 
 /** Inicialización del juego */
