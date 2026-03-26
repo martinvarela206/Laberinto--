@@ -106,7 +106,25 @@ function gameOver(isWin, msg) {
             modalUI.showNextLevel();
         }
     } else {
-        modalUI.showLose(msg);
+        // Para derrotas NO críticas (no alcanzó objetivo), mostrar marcador y vista previa
+        if (msg === "La secuencia terminó, pero no alcanzaste la meta.") {
+            const els = getDOMRefs();
+            els.modal.classList.add('hidden');
+            
+            // Guardar posición del fallo para mostrar X
+            gameState.failureMarkerPosition = { ...gameState.position };
+            gridRenderer.setTrailState('failure');
+            
+            // Esperar 2 segundos, mostrar marcador X, luego mostrar modal
+            setTimeout(() => {
+                markFailurePosition(gameState.failureMarkerPosition);
+                els.modal.classList.remove('hidden');
+                modalUI.showLose(msg);
+            }, 2000);
+        } else {
+            // Derrotas críticas (fuera de límites, colisión) - mostrar modal inmediatamente
+            modalUI.showLose(msg);
+        }
     }
 }
 
@@ -128,7 +146,11 @@ async function startRun() {
 
         const action = executionPlan[i];
         if (action.action) {
+            const previousPosition = { ...gameState.position };
             gameState.position = action.action(gameState.position);
+
+            // Dibujar trail del movimiento
+            gridRenderer.markTrailStep(previousPosition, gameState.position);
 
             const check = checkCollisions(gameState.position, gameState.level);
 
@@ -166,6 +188,7 @@ async function startRun() {
         const check = checkCollisions(gameState.position, gameState.level);
         if (check === 'win') {
             timerSystem.stop();
+            gridRenderer.setTrailState('success');
             await delay(300);
             gameOver(true, "¡Excelente lógica!");
         } else {
@@ -186,6 +209,10 @@ function resetLevel() {
 function retryLevel() {
     const els = getDOMRefs();
     modalUI.hide();
+
+    // Limpiar marcador de fallo y trail visuals
+    clearFailureMarker();
+    gridRenderer.clearTrailState();
 
     gameState.position = { ...gameState.level.playerStart };
     gameState.playing = false;
@@ -252,6 +279,47 @@ function nextLevel() {
     resetState();
     loadRanking();
     showTutorialIfNeeded();
+}
+
+/**
+ * Marcar posición de fallo con X emoji
+ */
+function markFailurePosition(position) {
+    if (!position) return;
+    
+    const cell = gridRenderer.getCell(position.x, position.y);
+    if (!cell) return;
+    
+    const marker = document.createElement('div');
+    marker.className = 'failure-marker';
+    marker.id = `failure-marker-${position.x}-${position.y}`;
+    marker.innerText = '❌';
+    marker.style.position = 'absolute';
+    marker.style.top = '0';
+    marker.style.left = '0';
+    marker.style.right = '0';
+    marker.style.bottom = '0';
+    marker.style.display = 'flex';
+    marker.style.alignItems = 'center';
+    marker.style.justifyContent = 'center';
+    marker.style.fontSize = '1.5rem';
+    marker.style.zIndex = '3';
+    
+    cell.appendChild(marker);
+}
+
+/**
+ * Limpiar marcador de fallo
+ */
+function clearFailureMarker() {
+    if (!gameState.failureMarkerPosition) return;
+    
+    const markerId = `failure-marker-${gameState.failureMarkerPosition.x}-${gameState.failureMarkerPosition.y}`;
+    const marker = document.getElementById(markerId);
+    if (marker) {
+        marker.remove();
+    }
+    gameState.failureMarkerPosition = null;
 }
 
 /** Inicialización del juego */

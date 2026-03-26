@@ -14,5 +14,6 @@ export const gameState = {
     currentLevelId: 'level-001',
     levelNumber: 1,
     pathTaken: [],
-    commandsUsed: 0
+    commandsUsed: 0,
+    failureMarkerPosition: null  // Tracks position where player failed
 };

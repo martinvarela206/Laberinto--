@@ -401,6 +401,84 @@ header {
     z-index: 10;
 }
 
+/* Trail System */
+:root {
+    --trail-color: #3b82f6;
+    --trail-glow: rgba(59, 130, 246, 0.6);
+}
+
+.maze-grid.trail-success {
+    outline-color: rgba(74, 222, 128, 0.8);
+}
+
+.maze-grid.trail-failure {
+    outline-color: rgba(239, 68, 68, 0.8);
+}
+
+.cell.trail-cell {
+    background-image:
+        linear-gradient(var(--trail-color), var(--trail-color)),
+        linear-gradient(var(--trail-color), var(--trail-color)),
+        linear-gradient(var(--trail-color), var(--trail-color)),
+        linear-gradient(var(--trail-color), var(--trail-color));
+    background-size:
+        16% calc(var(--trail-up, 0) * 50%),
+        16% calc(var(--trail-down, 0) * 50%),
+        calc(var(--trail-left, 0) * 50%) 16%,
+        calc(var(--trail-right, 0) * 50%) 16%;
+    background-position:
+        center top,
+        center bottom,
+        left center,
+        right center;
+    background-repeat: no-repeat;
+    transition: background-size 0.18s ease-out;
+}
+
+.cell.trail-node::after {
+    content: '';
+    position: absolute;
+    width: 34%;
+    height: 34%;
+    border-radius: 999px;
+    background: var(--trail-color);
+    box-shadow: 0 0 12px var(--trail-glow);
+    z-index: 1;
+}
+
+.cell.trail-animate::after {
+    animation: trailPulse 0.22s ease-out;
+}
+
+.failure-marker {
+    animation: failurePulse 0.4s ease-out;
+}
+
+@keyframes trailPulse {
+    0% {
+        transform: scale(0.6);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes failurePulse {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
 .goal {
     font-size: calc(var(--cell-size) * 0.7);
     animation: bounce 2s infinite;
