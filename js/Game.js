@@ -62,15 +62,17 @@ function resetState() {
     const els = getDOMRefs();
     const metadata = getLevelMetadata(gameState.currentLevelId);
     const initialSequence = Array.isArray(metadata?.initialSequence)
-        ? [...metadata.initialSequence]
+        ? metadata.initialSequence
+            .map((cmdId) => commandRegistry.getById(cmdId))
+            .filter(Boolean)
         : [];
 
     gameState.sequence = initialSequence;
     gameState.position = { ...gameState.level.playerStart };
     gameState.playing = false;
     gameState.isGameOver = false;
-    gameState.timer = 60;
-    gameState.commandsUsed = 0;
+    gameState.timer = gameState.level?.timeLimit || 60;
+    gameState.commandsUsed = gameState.sequence.length;
     gameState.pathTaken = [];
 
     timerSystem.stop();
@@ -170,6 +172,7 @@ async function startRun() {
 function resetLevel() {
     gameState.playing = false;
     setLevelById('level-001');
+    renderCommandsForCurrentLevel();
     resetState();
     loadRanking();
     showTutorialIfNeeded();
@@ -236,6 +239,7 @@ function nextLevel() {
 
     StorageSystem.saveLastCompletedLevel(gameState.currentLevelId);
     setLevelById(nextLevelId);
+    renderCommandsForCurrentLevel();
 
     els.btnRun.innerHTML = '▶️ Ejecutar';
     els.btnRun.classList.remove('secondary-btn', 'retry-mode');
@@ -275,8 +279,8 @@ export async function init() {
     // Cargar nivel inicial por ID
     setLevelById(firstLevelId);
 
-    // Renderizar comandos del registro
-    commandPanelUI.renderCommands(commandRegistry.getAll());
+    // Renderizar comandos permitidos para el nivel actual
+    renderCommandsForCurrentLevel();
     resetState();
     loadRanking();
 
@@ -374,12 +378,23 @@ function setLevelById(levelId) {
     gameState.levelNumber = idx >= 0 ? idx + 1 : 1;
     hudUI.updateLevel(gameState.levelNumber);
 
-    const metadata = getLevelMetadata(levelId);
-    if (metadata?.initialSequence) {
-        gameState.sequence = [...metadata.initialSequence];
-    } else {
-        gameState.sequence = [];
-    }
+    gameState.sequence = [];
 
     return true;
+}
+
+/**
+ * Renderizar solo comandos permitidos para el nivel actual.
+ */
+function renderCommandsForCurrentLevel() {
+    const metadata = getLevelMetadata(gameState.currentLevelId);
+    const allCommands = commandRegistry.getAll();
+
+    if (!metadata?.allowedCommands?.length) {
+        commandPanelUI.renderCommands(allCommands);
+        return;
+    }
+
+    const allowed = allCommands.filter((cmd) => metadata.allowedCommands.includes(cmd.id));
+    commandPanelUI.renderCommands(allowed);
 }
