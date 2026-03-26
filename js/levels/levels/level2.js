@@ -6,13 +6,24 @@ import { levelRegistry } from '../LevelRegistry.js';
  * Aprenden a combinar right y down
  */
 const level2 = new Level({
+    id: 'level-002',
+    name: 'Tutorial: Giro simple',
     width: 6,
     height: 2,
     playerStart: { x: 0, y: 0 },
     goal: { x: 5, y: 1 },
     walls: [],
     traps: [],
-    timeLimit: 60
+    timeLimit: 60,
+    allowedCommands: ['right', 'down'],
+    tutorialPages: [
+        {
+            title: 'Tutorial 2: Bajar',
+            command: 'down',
+            description: 'Ahora aprenderas el comando down. Sirve para mover al robot una celda hacia abajo y combinarlo con right.',
+            objective: 'Avanza hacia la derecha y luego baja para alcanzar la meta.'
+        }
+    ]
 });
 
 levelRegistry.register(level2);

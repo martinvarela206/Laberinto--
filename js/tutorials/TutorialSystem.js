@@ -9,7 +9,8 @@
 class TutorialSystem {
     constructor(domRefs) {
         this.domRefs = domRefs;
-        this.active = null;
+        this.pages = [];
+        this.pageIndex = 0;
         this.isVisible = false;
         this.seenTutorials = new Set();
     }
@@ -24,10 +25,13 @@ class TutorialSystem {
     /**
      * Show tutorial if level has one
      */
-    show(levelData) {
-        if (!levelData || !levelData.tutorialIntro) return false;
+    show(level) {
+        if (!level || !Array.isArray(level.tutorialPages) || level.tutorialPages.length === 0) {
+            return false;
+        }
 
-        this.active = levelData.tutorialIntro;
+        this.pages = level.tutorialPages.map((page) => ({ ...page }));
+        this.pageIndex = 0;
         this.isVisible = true;
         this.render();
 
@@ -43,9 +47,24 @@ class TutorialSystem {
      */
     hide() {
         this.isVisible = false;
+        this.pages = [];
+        this.pageIndex = 0;
         if (this.domRefs.tutorialOverlay) {
             this.domRefs.tutorialOverlay.classList.add('hidden');
         }
+    }
+
+    nextPage() {
+        if (!this.isVisible) return { done: true };
+
+        if (this.pageIndex < this.pages.length - 1) {
+            this.pageIndex += 1;
+            this.render();
+            return { done: false };
+        }
+
+        this.hide();
+        return { done: true };
     }
 
     /**
@@ -66,15 +85,16 @@ class TutorialSystem {
      * Render tutorial content
      */
     render() {
-        if (!this.active) return;
+        if (!this.pages.length) return;
 
-        const tutorial = this.active;
+        const tutorial = this.pages[this.pageIndex];
 
         if (this.domRefs.tutorialTitle) {
             this.domRefs.tutorialTitle.textContent = tutorial.title || '';
         }
         if (this.domRefs.tutorialCommand) {
             this.domRefs.tutorialCommand.textContent = tutorial.command || '';
+            this.domRefs.tutorialCommand.classList.toggle('hidden', !tutorial.command);
         }
         if (this.domRefs.tutorialDescription) {
             this.domRefs.tutorialDescription.textContent = tutorial.description || '';
@@ -82,13 +102,18 @@ class TutorialSystem {
         if (this.domRefs.tutorialObjective) {
             this.domRefs.tutorialObjective.textContent = tutorial.objective || '';
         }
+
+        if (this.domRefs.btnTutorialContinue) {
+            const isLastPage = this.pageIndex >= this.pages.length - 1;
+            this.domRefs.btnTutorialContinue.textContent = isLastPage ? 'Comenzar nivel' : 'Siguiente pagina';
+        }
     }
 
     /**
      * Get active tutorial data
      */
     getActiveTutorial() {
-        return this.active;
+        return this.pages[this.pageIndex] || null;
     }
 
     /**

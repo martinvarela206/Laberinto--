@@ -23,7 +23,7 @@ import { hudUI } from './ui/HudUI.js';
 import LoreSystem from './lore/LoreSystem.js';
 import TutorialSystem from './tutorials/TutorialSystem.js';
 import StorageSystem from './systems/StorageSystem.js';
-import { getLevelMetadata, getAllLevelIds } from './config/levelMetadata.js';
+import { getAllLevelIds } from './config/levelMetadata.js';
 
 // Instancias globales de sistemas educativos
 let loreSystem = null;
@@ -60,9 +60,8 @@ function loadRanking() {
 
 function resetState() {
     const els = getDOMRefs();
-    const metadata = getLevelMetadata(gameState.currentLevelId);
-    const initialSequence = Array.isArray(metadata?.initialSequence)
-        ? metadata.initialSequence
+    const initialSequence = Array.isArray(gameState.level?.initialSequence)
+        ? gameState.level.initialSequence
             .map((cmdId) => commandRegistry.getById(cmdId))
             .filter(Boolean)
         : [];
@@ -185,7 +184,7 @@ function retryLevel() {
     gameState.position = { ...gameState.level.playerStart };
     gameState.playing = false;
     gameState.isGameOver = false;
-    gameState.timer = 60;
+    gameState.timer = gameState.level?.timeLimit || 60;
     gameState.pathTaken = [];
 
     timerSystem.stop();
@@ -316,6 +315,9 @@ export async function init() {
     els.btnNextLevel.addEventListener('click', nextLevel);
     els.btnRetry.addEventListener('click', retryLevel);
     els.btnSaveScore.addEventListener('click', saveScore);
+    els.btnTutorialContinue.addEventListener('click', () => {
+        tutorialSystem.nextPage();
+    });
 
     window.addEventListener('resize', () => gridRenderer.updatePlayerPosition());
 }
@@ -326,18 +328,9 @@ export async function init() {
 function showTutorialIfNeeded() {
     if (tutorialSystem && gameState.level) {
         const levelId = getCurrentLevelId();
-        const metadata = getLevelMetadata(levelId);
-        
-        if (metadata && metadata.isTutorial && !tutorialSystem.hasBeenSeen(levelId)) {
-            if (tutorialSystem.show(metadata)) {
-                tutorialSystem.markAsSeen(levelId);
-                const els = getDOMRefs();
-                if (els.btnTutorialContinue) {
-                    els.btnTutorialContinue.addEventListener('click', () => {
-                        tutorialSystem.hide();
-                    });
-                }
-            }
+
+        if (!tutorialSystem.hasBeenSeen(levelId) && tutorialSystem.show(gameState.level)) {
+            tutorialSystem.markAsSeen(levelId);
         }
     }
 }
@@ -387,14 +380,14 @@ function setLevelById(levelId) {
  * Renderizar solo comandos permitidos para el nivel actual.
  */
 function renderCommandsForCurrentLevel() {
-    const metadata = getLevelMetadata(gameState.currentLevelId);
     const allCommands = commandRegistry.getAll();
+    const allowedCommands = gameState.level?.allowedCommands || [];
 
-    if (!metadata?.allowedCommands?.length) {
+    if (!allowedCommands.length) {
         commandPanelUI.renderCommands(allCommands);
         return;
     }
 
-    const allowed = allCommands.filter((cmd) => metadata.allowedCommands.includes(cmd.id));
+    const allowed = allCommands.filter((cmd) => allowedCommands.includes(cmd.id));
     commandPanelUI.renderCommands(allowed);
 }

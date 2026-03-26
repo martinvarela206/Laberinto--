@@ -6,6 +6,8 @@ import { levelRegistry } from '../LevelRegistry.js';
  * Intermedio - navegación compleja sin guía
  */
 const level7 = new Level({
+    id: 'level-007',
+    name: 'Corredor zig-zag',
     width: 10,
     height: 10,
     playerStart: { x: 0, y: 0 },
@@ -17,7 +19,8 @@ const level7 = new Level({
         { x: 6, y: 6 }
     ],
     traps: [],
-    timeLimit: 60
+    timeLimit: 60,
+    allowedCommands: ['up', 'down', 'left', 'right', 'repeat', 'enter']
 });
 
 levelRegistry.register(level7);
