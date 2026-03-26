@@ -279,6 +279,7 @@ export async function init() {
     setLevelById(firstLevelId);
 
     // Renderizar comandos permitidos para el nivel actual
+    commandPanelUI.bindEditorControls();
     renderCommandsForCurrentLevel();
     resetState();
     loadRanking();

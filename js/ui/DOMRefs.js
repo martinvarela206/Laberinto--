@@ -13,6 +13,10 @@ export function getDOMRefs() {
             // Controles principales
             commandsBank: document.getElementById('commands-bank'),
             sequenceContainer: document.getElementById('sequence-container'),
+            btnSeqCopy: document.getElementById('btn-seq-copy'),
+            btnSeqCut: document.getElementById('btn-seq-cut'),
+            btnSeqPaste: document.getElementById('btn-seq-paste'),
+            btnSeqDelete: document.getElementById('btn-seq-delete'),
             gridContainer: document.getElementById('grid-container'),
             btnUndo: document.getElementById('btn-undo'),
             btnRun: document.getElementById('btn-run'),

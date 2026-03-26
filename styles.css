@@ -156,6 +156,27 @@ header {
     padding: 0;
 }
 
+.sequence-tools {
+    display: flex;
+    gap: 0.35rem;
+    margin-bottom: 0.6rem;
+}
+
+.seq-tool-btn {
+    border: 1px solid rgba(148, 163, 184, 0.4);
+    background: rgba(30, 41, 59, 0.8);
+    color: var(--text-main);
+    border-radius: 0.35rem;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.75rem;
+    cursor: pointer;
+}
+
+.seq-tool-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
 /* Command Banks & Sequence */
 .command-grid {
     display: flex;
@@ -240,17 +261,41 @@ header {
     border-radius: 0.4rem;
     animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     transition: all 0.2s;
+    cursor: pointer;
+    position: relative;
 }
 
 .seq-item:hover {
-    background: rgba(239, 68, 68, 0.4); /* Delete red */
-    transform: scale(0.95);
+    background: rgba(255,255,255,0.16);
+    transform: scale(0.98);
+}
+
+.seq-item.selected {
+    border: 1px solid rgba(34, 211, 238, 0.8);
+    background: rgba(34, 211, 238, 0.2);
+}
+
+.seq-item.cursor-anchor::after {
+    content: '';
+    position: absolute;
+    left: 15%;
+    bottom: -0.34rem;
+    width: 70%;
+    height: 0.22rem;
+    border-radius: 999px;
+    background: #67e8f9;
+    animation: seqCursorBlink 1s steps(1, end) infinite;
 }
 
 .seq-item.executing {
     background: var(--primary);
     box-shadow: 0 0 15px var(--primary);
     transform: scale(1.1);
+}
+
+@keyframes seqCursorBlink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0.2; }
 }
 
 /* Buttons */
