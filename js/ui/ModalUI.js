@@ -14,6 +14,7 @@ export const modalUI = {
         els.modalScore.classList.remove('hidden');
         els.nameInputGroup.classList.remove('hidden');
         els.btnRetry.classList.add('hidden');
+        els.btnNextLevel.classList.add('hidden'); // Ocultado inicialmente, mostrado si hay siguiente nivel
 
         els.finalScore.innerText = score;
         els.finalScore.dataset.score = score;
@@ -29,6 +30,7 @@ export const modalUI = {
         els.modalScore.classList.add('hidden');
         els.nameInputGroup.classList.add('hidden');
         els.btnRetry.classList.remove('hidden');
+        els.btnNextLevel.classList.add('hidden'); // No mostrar siguiente nivel en derrota
     },
 
     hide() {

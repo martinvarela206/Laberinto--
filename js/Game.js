@@ -99,6 +99,12 @@ function gameOver(isWin, msg) {
     if (isWin) {
         const score = calculateScore(gameState.commandsUsed, gameState.timer);
         modalUI.showWin(msg, score);
+        
+        // Mostrar botón "Siguiente nivel" si hay nivel siguiente
+        const nextLevelId = getNextLevelId(gameState.currentLevelId);
+        if (nextLevelId) {
+            modalUI.showNextLevel();
+        }
     } else {
         modalUI.showLose(msg);
     }
