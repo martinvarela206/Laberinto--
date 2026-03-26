@@ -16,6 +16,7 @@ const level2 = new Level({
     traps: [],
     timeLimit: 60,
     allowedCommands: ['right', 'down'],
+    defaultCommandLimit: 20,
     tutorialPages: [
         {
             title: 'Tutorial 2: Bajar',

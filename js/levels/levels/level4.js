@@ -16,6 +16,7 @@ const level4 = new Level({
     traps: [],
     timeLimit: 60,
     allowedCommands: ['left', 'down'],
+    defaultCommandLimit: 20,
     tutorialPages: [
         {
             title: 'Tutorial 4: Izquierda',

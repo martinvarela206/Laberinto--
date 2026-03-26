@@ -12,16 +12,31 @@ export const commandPanelUI = {
         commands.forEach(cmd => {
             const btn = document.createElement('button');
             btn.className = 'cmd-btn';
-            btn.innerText = cmd.icon;
+            btn.type = 'button';
+            btn.dataset.cmdId = cmd.id;
             btn.title = cmd.name;
+
+            const icon = document.createElement('span');
+            icon.className = 'cmd-icon';
+            icon.innerText = cmd.icon;
+
+            const countBadge = document.createElement('span');
+            countBadge.className = 'cmd-count-badge';
+
+            btn.appendChild(icon);
+            btn.appendChild(countBadge);
+
             btn.onclick = () => {
                 if (gameState.playing) return;
+                if (this.getRemainingForCommand(cmd.id) <= 0) return;
                 gameState.sequence.push(cmd);
                 gameState.commandsUsed++;
                 this.updateSequenceUI();
             };
             els.commandsBank.appendChild(btn);
         });
+
+        this.updateCommandAvailability();
     },
 
     undoCommand() {
@@ -57,5 +72,41 @@ export const commandPanelUI = {
 
         // Scroll al final
         els.sequenceContainer.scrollTop = els.sequenceContainer.scrollHeight;
+
+        this.updateCommandAvailability();
+    },
+
+    getLimitForCommand(commandId) {
+        const rawLimit = gameState.commandLimits?.[commandId];
+        return Number.isFinite(rawLimit) ? rawLimit : Infinity;
+    },
+
+    getUsedForCommand(commandId) {
+        return gameState.sequence.reduce((total, cmd) => {
+            return total + (cmd.id === commandId ? 1 : 0);
+        }, 0);
+    },
+
+    getRemainingForCommand(commandId) {
+        const limit = this.getLimitForCommand(commandId);
+        if (!Number.isFinite(limit)) return Infinity;
+        return Math.max(0, limit - this.getUsedForCommand(commandId));
+    },
+
+    updateCommandAvailability() {
+        const els = getDOMRefs();
+        const buttons = els.commandsBank.querySelectorAll('.cmd-btn');
+
+        buttons.forEach((btn) => {
+            const commandId = btn.dataset.cmdId;
+            const remaining = this.getRemainingForCommand(commandId);
+            const badge = btn.querySelector('.cmd-count-badge');
+
+            if (badge) {
+                badge.textContent = Number.isFinite(remaining) ? String(remaining) : '∞';
+            }
+
+            btn.disabled = Number.isFinite(remaining) && remaining <= 0;
+        });
     }
 };

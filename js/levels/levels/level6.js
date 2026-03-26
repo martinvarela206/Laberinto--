@@ -19,6 +19,7 @@ const level6 = new Level({
     ],
     traps: [],
     timeLimit: 60,
+    defaultCommandLimit: 20,
     allowedCommands: ['up', 'down', 'left', 'right', 'repeat', 'enter']
 });
 

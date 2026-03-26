@@ -365,6 +365,7 @@ function setLevelById(levelId) {
 
     gameState.currentLevelId = levelId;
     gameState.level = level.clone();
+    gameState.commandLimits = buildEffectiveCommandLimits(gameState.level);
 
     const allIds = getAllLevelIds();
     const idx = allIds.indexOf(levelId);
@@ -374,6 +375,21 @@ function setLevelById(levelId) {
     gameState.sequence = [];
 
     return true;
+}
+
+function buildEffectiveCommandLimits(level) {
+    const limits = {};
+    const allowed = Array.isArray(level?.allowedCommands) ? level.allowedCommands : [];
+    const defaultLimit = Number.isFinite(level?.defaultCommandLimit)
+        ? level.defaultCommandLimit
+        : Infinity;
+
+    allowed.forEach((commandId) => {
+        const override = level?.commandLimits?.[commandId];
+        limits[commandId] = Number.isFinite(override) ? override : defaultLimit;
+    });
+
+    return limits;
 }
 
 /**

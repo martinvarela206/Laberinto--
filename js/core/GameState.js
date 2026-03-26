@@ -10,6 +10,7 @@ export const gameState = {
     timer: 60,
     intervalId: null,
     level: null,
+    commandLimits: {},
     currentLevelId: 'level-001',
     levelNumber: 1,
     pathTaken: [],

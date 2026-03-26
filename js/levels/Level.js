@@ -14,6 +14,8 @@ export class Level {
         traps = [],
         timeLimit = 60,
         allowedCommands = [],
+        defaultCommandLimit = Infinity,
+        commandLimits = {},
         tutorialPages = [],
         initialSequence = []
     }) {
@@ -27,6 +29,8 @@ export class Level {
         this.traps = traps.map(t => ({ ...t }));
         this.timeLimit = timeLimit;
         this.allowedCommands = [...allowedCommands];
+        this.defaultCommandLimit = Number.isFinite(defaultCommandLimit) ? defaultCommandLimit : Infinity;
+        this.commandLimits = { ...commandLimits };
         this.tutorialPages = tutorialPages.map((page) => ({ ...page }));
         this.initialSequence = [...initialSequence];
     }
@@ -49,6 +53,8 @@ export class Level {
             traps: this.traps.map(t => ({ ...t })),
             timeLimit: this.timeLimit,
             allowedCommands: [...this.allowedCommands],
+            defaultCommandLimit: this.defaultCommandLimit,
+            commandLimits: { ...this.commandLimits },
             tutorialPages: this.tutorialPages.map((page) => ({ ...page })),
             initialSequence: [...this.initialSequence]
         });

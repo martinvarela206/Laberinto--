@@ -16,6 +16,7 @@ const level8 = new Level({
     traps: [],
     timeLimit: 90,
     allowedCommands: ['right'],
+    defaultCommandLimit: 20,
     initialSequence: ['right', 'right', 'right', 'right'],
     tutorialPages: [
         {

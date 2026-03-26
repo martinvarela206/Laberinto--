@@ -16,6 +16,7 @@ const level3 = new Level({
     traps: [],
     timeLimit: 60,
     allowedCommands: ['right', 'up'],
+    defaultCommandLimit: 20,
     tutorialPages: [
         {
             title: 'Tutorial 3: Arriba',

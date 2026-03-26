@@ -16,6 +16,7 @@ const level5 = new Level({
     traps: [],
     timeLimit: 60,
     allowedCommands: ['right', 'down', 'repeat', 'enter'],
+    defaultCommandLimit: 20,
     tutorialPages: [
         {
             title: 'Tutorial 5: Repetir bloques',
