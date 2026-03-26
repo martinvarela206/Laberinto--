@@ -157,9 +157,6 @@ async function startRun() {
             const previousPosition = { ...gameState.position };
             gameState.position = action.action(gameState.position);
 
-            // Dibujar trail del movimiento
-            gridRenderer.markTrailStep(previousPosition, gameState.position);
-
             const check = checkCollisions(gameState.position, gameState.level);
 
             if (check === 'lose_bounds' || check === 'lose_wall') {
@@ -182,6 +179,8 @@ async function startRun() {
             }
 
             gridRenderer.updatePlayerPosition();
+            // Dibujar trail después del movimiento para sincronización visual
+            gridRenderer.markTrailStep(previousPosition, gameState.position);
 
             if (!gameState.pathTaken.some(p => p.x === gameState.position.x && p.y === gameState.position.y)) {
                 gameState.pathTaken.push({ ...gameState.position });
