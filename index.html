@@ -58,6 +58,46 @@
             </section>
         </main>
         
+        <!-- Lore Overlay (Introducción narrativa) -->
+        <div id="lore-overlay" class="lore-overlay hidden">
+            <div class="lore-modal glass-panel">
+                <div class="lore-header">
+                    <h3 id="lore-kicker" class="lore-kicker">Instituto de Informática</h3>
+                    <h2 id="lore-title">Bienvenido a Laberinto++</h2>
+                </div>
+                <div class="lore-content">
+                    <p id="lore-description" class="lore-description"></p>
+                    <p id="lore-story" class="lore-story"></p>
+                    <p id="lore-objective" class="lore-objective"></p>
+                </div>
+                <div class="lore-progress">
+                    <div id="lore-progress" class="lore-progress-bar"></div>
+                </div>
+                <div class="lore-buttons">
+                    <button id="btn-lore-next" class="btn primary-btn">Siguiente →</button>
+                    <button id="btn-lore-start" class="btn secondary-btn hidden">Iniciar</button>
+                    <button id="btn-lore-continue" class="btn secondary-btn hidden">Continuar</button>
+                    <button id="btn-lore-reset" class="btn secondary-btn hidden">Comenzar de nuevo</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tutorial Overlay (Tutorial de nivel) -->
+        <div id="tutorial-overlay" class="tutorial-overlay hidden">
+            <div class="tutorial-modal glass-panel">
+                <div class="tutorial-header">
+                    <h2 id="tutorial-title">Tutorial</h2>
+                    <span id="tutorial-command" class="tutorial-command-badge"></span>
+                </div>
+                <div class="tutorial-content">
+                    <p id="tutorial-description" class="tutorial-description"></p>
+                    <p id="tutorial-objective" class="tutorial-objective"></p>
+                </div>
+                <button id="btn-tutorial-continue" class="btn primary-btn">Entendido →</button>
+            </div>
+        </div>
+        
+        <!-- Modal de Resultados -->
         <div id="modal-overlay" class="modal-overlay hidden">
             <div class="modal glass-panel">
                 <h2 id="modal-title">¡Juego Terminado!</h2>

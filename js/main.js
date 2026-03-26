@@ -1,7 +1,10 @@
 /**
  * main.js - Bootstrap del juego.
- * Registra todos los comandos y niveles, luego inicia el juego.
- * Para agregar nuevos comandos o niveles, solo hay que importarlos y registrarlos aquí.
+ * Registra todos los comandos, niveles y sistemas.
+ * Para agregar nuevos comandos/niveles/sistemas, solo importarlos y registrarlos aquí.
+ * 
+ * Design: Este archivo actúa como punto central que orquesta importaciones.
+ * Mantenerlo limpio y conciso facilita el trabajo colaborativo.
  */
 
 // --- Registrar Comandos ---
@@ -18,8 +21,8 @@ commandRegistry.register(new RepeatCommand());
 commandRegistry.register(new EnterCommand());
 
 // --- Registrar Niveles ---
-// (cada nivel se auto-registra al importarse)
-import './levels/levels/level1.js';
+// Importar module que carga todos los niveles
+import './levels/levels.js';
 
 // --- Iniciar Juego ---
 import { init } from './Game.js';

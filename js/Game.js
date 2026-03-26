@@ -2,6 +2,8 @@
  * Game.js - Orquestador principal del juego.
  * Coordina todos los módulos: estado, sistemas, UI.
  * Contiene la lógica de flujo del juego (ejecutar, reiniciar, reintentar, etc.)
+ * 
+ * Integra: Sistema de Lore, Tutorial, Persistencia de progreso
  */
 import { gameState } from './core/GameState.js';
 import { getDOMRefs } from './ui/DOMRefs.js';
@@ -16,6 +18,16 @@ import { gridRenderer } from './ui/GridRenderer.js';
 import { commandPanelUI } from './ui/CommandPanelUI.js';
 import { modalUI } from './ui/ModalUI.js';
 import { hudUI } from './ui/HudUI.js';
+
+// Sistemas educativos
+import LoreSystem from './lore/LoreSystem.js';
+import TutorialSystem from './tutorials/TutorialSystem.js';
+import StorageSystem from './systems/StorageSystem.js';
+import { getLevelMetadata, getAllLevelIds } from './config/levelMetadata.js';
+
+// Instancias globales de sistemas educativos
+let loreSystem = null;
+let tutorialSystem = null;
 
 function delay(ms) {
     return new Promise(res => setTimeout(res, ms));
@@ -48,8 +60,12 @@ function loadRanking() {
 
 function resetState() {
     const els = getDOMRefs();
+    const metadata = getLevelMetadata(gameState.currentLevelId);
+    const initialSequence = Array.isArray(metadata?.initialSequence)
+        ? [...metadata.initialSequence]
+        : [];
 
-    gameState.sequence = [];
+    gameState.sequence = initialSequence;
     gameState.position = { ...gameState.level.playerStart };
     gameState.playing = false;
     gameState.isGameOver = false;
@@ -153,14 +169,10 @@ async function startRun() {
 
 function resetLevel() {
     gameState.playing = false;
-    gameState.levelNumber = 1;
-
-    const baseLevel = levelRegistry.getLevel(0);
-    gameState.level = baseLevel.clone();
-
-    hudUI.updateLevel(gameState.levelNumber);
+    setLevelById('level-001');
     resetState();
     loadRanking();
+    showTutorialIfNeeded();
 }
 
 function retryLevel() {
@@ -215,40 +227,82 @@ function nextLevel() {
     modalUI.hide();
     modalUI.hideNextLevel();
 
-    gameState.levelNumber++;
-    hudUI.updateLevel(gameState.levelNumber);
-
-    // Añadir obstáculo basado en la ruta tomada
-    const validPath = gameState.pathTaken.filter(p =>
-        !(p.x === gameState.level.goal.x && p.y === gameState.level.goal.y) &&
-        !(p.x === gameState.level.playerStart.x && p.y === gameState.level.playerStart.y)
-    );
-
-    if (validPath.length > 0) {
-        const randomIndex = Math.floor(Math.random() * validPath.length);
-        const obstacle = validPath[randomIndex];
-        gameState.level.addObstacle(obstacle);
+    const nextLevelId = getNextLevelId(gameState.currentLevelId);
+    if (!nextLevelId) {
+        resetState();
+        loadRanking();
+        return;
     }
+
+    StorageSystem.saveLastCompletedLevel(gameState.currentLevelId);
+    setLevelById(nextLevelId);
 
     els.btnRun.innerHTML = '▶️ Ejecutar';
     els.btnRun.classList.remove('secondary-btn', 'retry-mode');
     els.btnRun.classList.add('primary-btn');
     resetState();
     loadRanking();
+    showTutorialIfNeeded();
 }
 
 /** Inicialización del juego */
-export function init() {
+export async function init() {
     const els = getDOMRefs();
 
-    // Establecer nivel inicial
-    const baseLevel = levelRegistry.getLevel(0);
-    gameState.level = baseLevel.clone();
+    // Inicializar sistemas educativos
+    loreSystem = new LoreSystem(els);
+    tutorialSystem = new TutorialSystem(els);
+
+    // Determinar nivel inicial
+    let firstLevelId = 'level-001';
+    let startFromBeginning = true;
+
+    // Intentar retomar progreso guardado
+    try {
+        const lastCompletedLevel = await StorageSystem.getLastCompletedLevel();
+        if (lastCompletedLevel) {
+            // Obtener siguiente nivel después del completado
+            const nextLevel = levelRegistry.getNextLevel(lastCompletedLevel);
+            if (nextLevel) {
+                firstLevelId = getNextLevelId(lastCompletedLevel);
+                startFromBeginning = false;
+            }
+        }
+    } catch (e) {
+        console.warn('Error reading progress:', e);
+    }
+
+    // Cargar nivel inicial por ID
+    setLevelById(firstLevelId);
 
     // Renderizar comandos del registro
     commandPanelUI.renderCommands(commandRegistry.getAll());
     resetState();
     loadRanking();
+
+    // Mostrar Lore si es primera vez
+    if (startFromBeginning) {
+        const loreInit = await loreSystem.initialize();
+        if (loreInit.shouldShow) {
+            loreSystem.show();
+            
+            // Configurar botones de lore
+            if (els.btnLoreNext) {
+                els.btnLoreNext.addEventListener('click', () => {
+                    if (loreSystem.currentStep < loreSystem.maxSteps - 1) {
+                        loreSystem.nextStep();
+                    } else {
+                        loreSystem.complete();
+                        showTutorialIfNeeded();
+                    }
+                });
+            }
+        } else {
+            showTutorialIfNeeded();
+        }
+    } else {
+        showTutorialIfNeeded();
+    }
 
     // Event listeners
     els.btnUndo.addEventListener('click', () => commandPanelUI.undoCommand());
@@ -260,4 +314,72 @@ export function init() {
     els.btnSaveScore.addEventListener('click', saveScore);
 
     window.addEventListener('resize', () => gridRenderer.updatePlayerPosition());
+}
+
+/**
+ * Mostrar tutorial si el nivel actual es un tutorial
+ */
+function showTutorialIfNeeded() {
+    if (tutorialSystem && gameState.level) {
+        const levelId = getCurrentLevelId();
+        const metadata = getLevelMetadata(levelId);
+        
+        if (metadata && metadata.isTutorial && !tutorialSystem.hasBeenSeen(levelId)) {
+            if (tutorialSystem.show(metadata)) {
+                tutorialSystem.markAsSeen(levelId);
+                const els = getDOMRefs();
+                if (els.btnTutorialContinue) {
+                    els.btnTutorialContinue.addEventListener('click', () => {
+                        tutorialSystem.hide();
+                    });
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Obtener ID del nivel actual
+ */
+function getCurrentLevelId() {
+    return gameState.currentLevelId || 'level-001';
+}
+
+/**
+ * Obtener ID del siguiente nivel
+ */
+function getNextLevelId(currentLevelId) {
+    const allIds = getAllLevelIds();
+    const currentIndex = allIds.indexOf(currentLevelId);
+    if (currentIndex >= 0 && currentIndex < allIds.length - 1) {
+        return allIds[currentIndex + 1];
+    }
+    return null;
+}
+
+/**
+ * Cargar nivel por ID y sincronizar estado global
+ */
+function setLevelById(levelId) {
+    const level = levelRegistry.getLevelById(levelId);
+    if (!level) {
+        return false;
+    }
+
+    gameState.currentLevelId = levelId;
+    gameState.level = level.clone();
+
+    const allIds = getAllLevelIds();
+    const idx = allIds.indexOf(levelId);
+    gameState.levelNumber = idx >= 0 ? idx + 1 : 1;
+    hudUI.updateLevel(gameState.levelNumber);
+
+    const metadata = getLevelMetadata(levelId);
+    if (metadata?.initialSequence) {
+        gameState.sequence = [...metadata.initialSequence];
+    } else {
+        gameState.sequence = [];
+    }
+
+    return true;
 }

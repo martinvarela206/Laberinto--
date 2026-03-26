@@ -464,3 +464,109 @@ header {
         --cell-size: min(8vw, 35px);
     }
 }
+
+/* Lore Overlay */
+.lore-overlay,
+.tutorial-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(2, 6, 23, 0.82);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 3000;
+    padding: 1rem;
+}
+
+.lore-modal,
+.tutorial-modal {
+    width: min(760px, 95vw);
+    border-radius: 20px;
+    padding: 2rem;
+    border: 1px solid var(--panel-border);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+.lore-kicker {
+    color: #fbbf24;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    font-size: 0.8rem;
+    margin-bottom: 0.4rem;
+}
+
+.lore-header h2,
+.tutorial-header h2 {
+    font-size: 1.8rem;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+}
+
+.lore-description,
+.lore-story,
+.lore-objective,
+.tutorial-description,
+.tutorial-objective {
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 0.7rem;
+}
+
+.lore-objective,
+.tutorial-objective {
+    color: #dbeafe;
+    font-weight: 600;
+}
+
+.lore-progress {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
+    overflow: hidden;
+    margin: 1.2rem 0;
+}
+
+.lore-progress-bar {
+    width: 0;
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6, #22d3ee);
+    transition: width 0.3s ease;
+}
+
+.lore-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.6rem;
+}
+
+.tutorial-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.tutorial-command-badge {
+    padding: 0.35rem 0.65rem;
+    border-radius: 999px;
+    border: 1px solid rgba(34, 211, 238, 0.45);
+    background: rgba(34, 211, 238, 0.15);
+    color: #67e8f9;
+    font-weight: 700;
+    font-size: 0.8rem;
+}
+
+@media (max-width: 768px) {
+    .lore-modal,
+    .tutorial-modal {
+        padding: 1.4rem;
+    }
+
+    .lore-header h2,
+    .tutorial-header h2 {
+        font-size: 1.35rem;
+    }
+}
