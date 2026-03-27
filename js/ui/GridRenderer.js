@@ -1,6 +1,11 @@
 import { getDOMRefs } from './DOMRefs.js';
 import { gameState } from '../core/GameState.js';
-import { resolveVisualAssets } from '../config/visualAssets.js';
+import { resolveVisualAssetsWithEntityDefaults } from '../config/visualAssets.js';
+import { Entity } from '../core/Entity.js';
+import { Player } from '../entities/Player.js';
+import { Goal } from '../entities/Goal.js';
+import { Wall } from '../entities/Wall.js';
+import { Trap } from '../entities/Trap.js';
 
 /**
  * GridRenderer - Renderizado de la grilla del laberinto y posición del jugador.
@@ -8,7 +13,7 @@ import { resolveVisualAssets } from '../config/visualAssets.js';
 export const gridRenderer = {
     render(level) {
         const els = getDOMRefs();
-        const visuals = resolveVisualAssets(level?.visualAssets);
+        const visuals = resolveVisualAssetsWithEntityDefaults(this._getEntityVisualDefaults(), level?.visualAssets);
 
         els.gridContainer.innerHTML = '';
         this._applyGridVisualTheme(els.gridContainer, visuals);
@@ -236,7 +241,7 @@ export const gridRenderer = {
     },
 
     _applyEntityAsset(targetEl, asset, className) {
-        const safeAsset = asset || { type: 'emoji', value: '' };
+        const safeAsset = Entity.normalizeVisual(asset);
         const type = safeAsset.type || 'emoji';
 
         targetEl.classList.add('entity-asset-host');
@@ -249,6 +254,7 @@ export const gridRenderer = {
             img.className = 'entity-asset entity-asset-image';
             img.src = safeAsset.src;
             img.alt = safeAsset.alt || '';
+            this._applyAssetSize(img, safeAsset, 'image');
             targetEl.appendChild(img);
             return;
         }
@@ -256,7 +262,55 @@ export const gridRenderer = {
         const span = document.createElement('span');
         span.className = 'entity-asset entity-asset-emoji';
         span.textContent = safeAsset.value || '';
+        this._applyAssetSize(span, safeAsset, 'emoji');
         targetEl.appendChild(span);
+    },
+
+    _applyAssetSize(assetEl, visualAsset, kind) {
+        if (!assetEl || !visualAsset?.size) return;
+
+        const size = visualAsset.size;
+        const normalizedCommon = this._normalizeSizeValue(size[kind]);
+        const normalizedWidth = this._normalizeSizeValue(size.width);
+        const normalizedHeight = this._normalizeSizeValue(size.height);
+
+        if (kind === 'emoji') {
+            if (normalizedCommon) {
+                assetEl.style.fontSize = normalizedCommon;
+                assetEl.style.lineHeight = '1';
+            }
+            return;
+        }
+
+        if (normalizedCommon) {
+            assetEl.style.width = normalizedCommon;
+            assetEl.style.height = normalizedCommon;
+        }
+        if (normalizedWidth) {
+            assetEl.style.width = normalizedWidth;
+        }
+        if (normalizedHeight) {
+            assetEl.style.height = normalizedHeight;
+        }
+    },
+
+    _normalizeSizeValue(value) {
+        if (value === null || value === undefined || value === '') {
+            return null;
+        }
+        if (typeof value === 'number') {
+            return `${value}px`;
+        }
+        return String(value);
+    },
+
+    _getEntityVisualDefaults() {
+        return {
+            player: Player.getDefaultVisual(),
+            goal: Goal.getDefaultVisual(),
+            wall: Wall.getDefaultVisual(),
+            trap: Trap.getDefaultVisual()
+        };
     },
 
     _isValidPosition(position) {
