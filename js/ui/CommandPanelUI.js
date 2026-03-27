@@ -149,16 +149,36 @@ export const commandPanelUI = {
     },
 
     deleteSelection() {
-        if (gameState.playing || !this.selectedIndices.size) return;
-        const selected = this.getSortedSelectedIndices();
-        const firstSelected = selected[0];
+        if (gameState.playing) return;
 
-        for (let i = selected.length - 1; i >= 0; i--) {
-            gameState.sequence.splice(selected[i], 1);
+        if (this.selectedIndices.size) {
+            const selected = this.getSortedSelectedIndices();
+            const firstSelected = selected[0];
+
+            for (let i = selected.length - 1; i >= 0; i--) {
+                gameState.sequence.splice(selected[i], 1);
+            }
+
+            this.clearSelection();
+            this.cursorIndex = Math.min(firstSelected - 1, gameState.sequence.length - 1);
+            gameState.commandsUsed = gameState.sequence.length;
+            this.updateSequenceUI();
+            return;
         }
 
+        const hasCursorTarget =
+            this.cursorIndex !== null &&
+            this.cursorIndex >= 0 &&
+            this.cursorIndex < gameState.sequence.length;
+
+        if (!hasCursorTarget) return;
+
+        const removeIndex = this.cursorIndex;
+        gameState.sequence.splice(removeIndex, 1);
         this.clearSelection();
-        this.cursorIndex = Math.min(firstSelected - 1, gameState.sequence.length - 1);
+        this.cursorIndex = gameState.sequence.length
+            ? Math.min(removeIndex, gameState.sequence.length - 1)
+            : null;
         gameState.commandsUsed = gameState.sequence.length;
         this.updateSequenceUI();
     },
@@ -166,10 +186,14 @@ export const commandPanelUI = {
     updateEditorButtons() {
         const els = getDOMRefs();
         const hasSelection = this.selectedIndices.size > 0;
+        const hasCursorTarget =
+            this.cursorIndex !== null &&
+            this.cursorIndex >= 0 &&
+            this.cursorIndex < gameState.sequence.length;
 
         if (els.btnSeqCopy) els.btnSeqCopy.disabled = !hasSelection || gameState.playing;
         if (els.btnSeqCut) els.btnSeqCut.disabled = !hasSelection || gameState.playing;
-        if (els.btnSeqDelete) els.btnSeqDelete.disabled = !hasSelection || gameState.playing;
+        if (els.btnSeqDelete) els.btnSeqDelete.disabled = (!hasSelection && !hasCursorTarget) || gameState.playing;
         if (els.btnSeqPaste) els.btnSeqPaste.disabled = !this.clipboard.length || gameState.playing;
     },
 
