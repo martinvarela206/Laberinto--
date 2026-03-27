@@ -234,11 +234,12 @@ function mapCollisionToDestiny(collision) {
 
 function resetLevel() {
     gameState.playing = false;
-    setLevelById('level-001');
+    const currentLevelId = getCurrentLevelId();
+    setLevelById(currentLevelId);
     renderCommandsForCurrentLevel();
     resetState();
     loadRanking();
-    showTutorialIfNeeded();
+    showTutorialIfNeeded(true);
 }
 
 function retryLevel() {
@@ -445,9 +446,15 @@ export async function init() {
 /**
  * Mostrar tutorial si el nivel actual es un tutorial
  */
-function showTutorialIfNeeded() {
+function showTutorialIfNeeded(force = false) {
     if (tutorialSystem && gameState.level) {
         const levelId = getCurrentLevelId();
+
+        if (force) {
+            tutorialSystem.hide();
+            tutorialSystem.show(gameState.level);
+            return;
+        }
 
         if (!tutorialSystem.hasBeenSeen(levelId) && tutorialSystem.show(gameState.level)) {
             tutorialSystem.markAsSeen(levelId);
