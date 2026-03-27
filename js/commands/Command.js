@@ -14,4 +14,16 @@ export class Command {
     get action() {
         return null;
     }
+
+    /**
+     * Definición de animaciones por estado del comando.
+     * Formato: [name, durationSeconds, loops]
+     */
+    getExecutionStates() {
+        return {
+            preState: { animations: [] },
+            inState: { animations: [] },
+            postState: { animations: [] }
+        };
+    }
 }

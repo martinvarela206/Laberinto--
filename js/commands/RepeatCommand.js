@@ -8,4 +8,12 @@ export class RepeatCommand extends Command {
     constructor() {
         super('repeat', 'Repetir', '🔁');
     }
+
+    getExecutionStates() {
+        return {
+            preState: { animations: [] },
+            inState: { animations: [] },
+            postState: { animations: [] }
+        };
+    }
 }

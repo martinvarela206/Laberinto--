@@ -8,4 +8,12 @@ export class EnterCommand extends Command {
     constructor() {
         super('enter', 'Siguiente Bloque', '↵');
     }
+
+    getExecutionStates() {
+        return {
+            preState: { animations: [] },
+            inState: { animations: [] },
+            postState: { animations: [] }
+        };
+    }
 }

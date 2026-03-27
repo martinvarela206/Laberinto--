@@ -14,6 +14,7 @@ import { checkCollisions } from './systems/CollisionSystem.js';
 import { calculateScore } from './systems/ScoreSystem.js';
 import { timerSystem } from './systems/TimerSystem.js';
 import { rankingSystem } from './systems/RankingSystem.js';
+import { animationSystem } from './systems/AnimationSystem.js';
 import { gridRenderer } from './ui/GridRenderer.js';
 import { commandPanelUI } from './ui/CommandPanelUI.js';
 import { modalUI } from './ui/ModalUI.js';
@@ -92,6 +93,7 @@ function gameOver(isWin, msg) {
     gameState.playing = false;
     gameState.isGameOver = true;
     timerSystem.stop();
+    animationSystem.clearInfiniteAnimations();
 
     if (isWin) {
         const score = calculateScore(gameState.commandsUsed, gameState.timer);
@@ -140,6 +142,7 @@ async function startRun() {
 
     clearFailureMarker();
     gridRenderer.clearTrailState();
+    animationSystem.clearInfiniteAnimations();
 
     gameState.playing = true;
     els.btnRun.disabled = true;
@@ -155,28 +158,45 @@ async function startRun() {
         const action = executionPlan[i];
         if (action.action) {
             const previousPosition = { ...gameState.position };
-            gameState.position = action.action(gameState.position);
+            const targetPosition = action.action(gameState.position);
+            const check = checkCollisions(targetPosition, gameState.level);
+            const destiny = mapCollisionToDestiny(check);
 
-            const check = checkCollisions(gameState.position, gameState.level);
+            let movementApplied = false;
+            const applyMovement = () => {
+                if (movementApplied) return;
+                gameState.position = targetPosition;
+                gridRenderer.updatePlayerPosition();
+                gridRenderer.markTrailStep(previousPosition, targetPosition);
+                movementApplied = true;
+            };
+
+            const states = typeof action.getExecutionStates === 'function'
+                ? action.getExecutionStates({
+                    from: previousPosition,
+                    to: targetPosition,
+                    destiny,
+                    collision: check
+                })
+                : {
+                    preState: { animations: [] },
+                    inState: { animations: [['move', 0.25, 1]] },
+                    postState: { animations: [] }
+                };
+
+            await animationSystem.runCommandStates({
+                states,
+                executeMovement: applyMovement,
+                canContinue: () => gameState.playing
+            });
+
+            if (!movementApplied) {
+                applyMovement();
+            }
+
+            if (!gameState.playing) return;
 
             if (check === 'lose_bounds' || check === 'lose_wall') {
-                const playerEl = document.getElementById('player');
-                if (playerEl) playerEl.style.transition = 'transform 1.5s cubic-bezier(0.25, 0.1, 0.25, 1)';
-                gridRenderer.updatePlayerPosition();
-
-                await delay(1500);
-
-                // En caída fuera del laberinto, simular profundidad con zoom out.
-                if (check === 'lose_bounds' && playerEl) {
-                    playerEl.classList.add('fall-void');
-                    await delay(650);
-                    playerEl.classList.remove('fall-void');
-                }
-
-                if (playerEl) playerEl.style.transition = '';
-
-                if (!gameState.playing) return;
-
                 if (check === 'lose_bounds') {
                     // La posición fuera de grilla no tiene celda; marcamos la última válida.
                     gameState.failureMarkerPosition = { ...previousPosition };
@@ -186,10 +206,6 @@ async function startRun() {
                 }
                 return;
             }
-
-            gridRenderer.updatePlayerPosition();
-            // Dibujar trail después del movimiento para sincronización visual
-            gridRenderer.markTrailStep(previousPosition, gameState.position);
         }
     }
 
@@ -207,6 +223,13 @@ async function startRun() {
             gameOver(false, "La secuencia terminó, pero no alcanzaste la meta.");
         }
     }
+}
+
+function mapCollisionToDestiny(collision) {
+    if (collision === 'lose_bounds') return 'outOfBounds';
+    if (collision === 'lose_wall') return 'wall';
+    if (collision === 'win') return 'goal';
+    return 'safe';
 }
 
 function resetLevel() {

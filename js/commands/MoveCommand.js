@@ -15,4 +15,30 @@ export class MoveCommand extends Command {
     get action() {
         return this._action;
     }
+
+    getExecutionStates(context = {}) {
+        const destiny = context.destiny || 'safe';
+
+        if (destiny === 'outOfBounds') {
+            return {
+                preState: { animations: [] },
+                inState: { animations: [['moveSlow', 1.5, 1]] },
+                postState: { animations: [['zoomOut', 0.65, 1]] }
+            };
+        }
+
+        if (destiny === 'wall') {
+            return {
+                preState: { animations: [] },
+                inState: { animations: [['moveSlow', 1.5, 1]] },
+                postState: { animations: [] }
+            };
+        }
+
+        return {
+            preState: { animations: [] },
+            inState: { animations: [['move', 0.25, 1]] },
+            postState: { animations: [] }
+        };
+    }
 }

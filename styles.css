@@ -393,8 +393,22 @@ header {
     will-change: transform, opacity, filter;
 }
 
-.player.fall-void .player-inner {
-    animation: playerFallVoid 0.65s cubic-bezier(0.18, 0.8, 0.2, 1) forwards;
+.player-inner.anim-zoom-out {
+    animation-name: playerFallVoid;
+    animation-timing-function: cubic-bezier(0.18, 0.8, 0.2, 1);
+    animation-fill-mode: forwards;
+}
+
+.player-inner.anim-crouch {
+    animation-name: playerCrouch;
+    animation-timing-function: ease-in-out;
+    animation-fill-mode: both;
+}
+
+.player-inner.anim-jump {
+    animation-name: playerJump;
+    animation-timing-function: cubic-bezier(0.2, 0.9, 0.2, 1);
+    animation-fill-mode: both;
 }
 
 /* Trail System */
@@ -485,6 +499,27 @@ header {
         transform: translateY(35%) scale(0.12);
         opacity: 0.12;
         filter: blur(1.4px);
+    }
+}
+
+@keyframes playerCrouch {
+    0%, 100% {
+        transform: translateY(0) scale(1, 1);
+    }
+    50% {
+        transform: translateY(8%) scale(1.08, 0.82);
+    }
+}
+
+@keyframes playerJump {
+    0% {
+        transform: translateY(0) scale(1);
+    }
+    35% {
+        transform: translateY(-38%) scale(0.96, 1.06);
+    }
+    100% {
+        transform: translateY(0) scale(1);
     }
 }
 
