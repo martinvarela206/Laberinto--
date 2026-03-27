@@ -110,8 +110,13 @@ function gameOver(isWin, msg) {
 
         if (isNonCriticalFailure) {
             const els = getDOMRefs();
-            gameState.failureMarkerPosition = { ...gameState.position };
+            if (!gameState.failureMarkerPosition) {
+                gameState.failureMarkerPosition = { ...gameState.position };
+            }
             gridRenderer.setTrailState('failure');
+
+            // En caída al vacío, recuperar inmediatamente tras desaparecer.
+            const recoveryDelayMs = msg.includes('caíste') ? 0 : 2000;
 
             // Vista previa breve y regreso al tablero con la X de fallo.
             setTimeout(() => {
@@ -121,7 +126,7 @@ function gameOver(isWin, msg) {
                 markFailurePosition(gameState.failureMarkerPosition);
                 enableGamePanel();
                 els.modal.classList.add('hidden');
-            }, 2000);
+            }, recoveryDelayMs);
             return;
         }
 
@@ -173,6 +178,8 @@ async function startRun() {
                 if (!gameState.playing) return;
 
                 if (check === 'lose_bounds') {
+                    // La posición fuera de grilla no tiene celda; marcamos la última válida.
+                    gameState.failureMarkerPosition = { ...previousPosition };
                     gameOver(false, "Oh no! Te caíste del laberinto.");
                 } else {
                     gameOver(false, "¡Ouch! Chocaste con un obstáculo.");
