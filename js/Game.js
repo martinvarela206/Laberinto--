@@ -11,9 +11,7 @@ import { commandRegistry } from './commands/CommandRegistry.js';
 import { evaluateSequence } from './commands/CommandEvaluator.js';
 import { levelRegistry } from './levels/LevelRegistry.js';
 import { checkCollisions } from './systems/CollisionSystem.js';
-import { calculateScore } from './systems/ScoreSystem.js';
 import { timerSystem } from './systems/TimerSystem.js';
-import { rankingSystem } from './systems/RankingSystem.js';
 import { animationSystem } from './systems/AnimationSystem.js';
 import { gridRenderer } from './ui/GridRenderer.js';
 import { commandPanelUI } from './ui/CommandPanelUI.js';
@@ -39,24 +37,6 @@ function startTimer() {
         (time) => hudUI.updateTimer(time),
         () => gameOver(false, "¡Se acabó el tiempo!")
     );
-}
-
-function loadRanking() {
-    const els = getDOMRefs();
-    const ranking = rankingSystem.load(gameState.levelNumber);
-    els.rankingList.innerHTML = '';
-
-    if (ranking.length === 0) {
-        els.rankingList.innerHTML = '<li><i>No hay récords aún</i></li>';
-        return;
-    }
-
-    ranking.forEach((r, idx) => {
-        const li = document.createElement('li');
-        const pos = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `${idx + 1}.`;
-        li.innerHTML = `<span>${pos} ${r.name}</span> <span style="color:var(--primary); font-weight:bold;">${r.score}</span>`;
-        els.rankingList.appendChild(li);
-    });
 }
 
 function resetState() {
@@ -96,8 +76,7 @@ function gameOver(isWin, msg) {
     animationSystem.clearInfiniteAnimations();
 
     if (isWin) {
-        const score = calculateScore(gameState.commandsUsed, gameState.timer);
-        modalUI.showWin(msg, score);
+        modalUI.showWin(msg);
         
         // Mostrar botón "Siguiente nivel" si hay nivel siguiente
         const nextLevelId = getNextLevelId(gameState.currentLevelId);
@@ -238,13 +217,12 @@ function resetLevel() {
     setLevelById(currentLevelId);
     renderCommandsForCurrentLevel();
     resetState();
-    loadRanking();
     showTutorialIfNeeded(true);
 }
 
 async function fullResetGame() {
     const confirmReset = window.confirm(
-        'Esto borrará todo el progreso guardado, lore visto, ranking y configuración. ¿Deseas continuar?'
+        'Esto borrará todo el progreso guardado, lore visto y configuración. ¿Deseas continuar?'
     );
     if (!confirmReset) return;
 
@@ -288,21 +266,6 @@ function playAgain() {
     resetState();
 }
 
-function saveScore() {
-    const els = getDOMRefs();
-    const name = els.playerName.value.trim() || 'Anónimo';
-    const score = parseInt(els.finalScore.dataset.score, 10);
-
-    const isTop1 = rankingSystem.save(gameState.levelNumber, name, score);
-
-    modalUI.hideNameInput();
-    loadRanking();
-
-    if (isTop1) {
-        modalUI.showNextLevel();
-    }
-}
-
 function nextLevel() {
     const els = getDOMRefs();
 
@@ -312,7 +275,6 @@ function nextLevel() {
     const nextLevelId = getNextLevelId(gameState.currentLevelId);
     if (!nextLevelId) {
         resetState();
-        loadRanking();
         return;
     }
 
@@ -324,7 +286,6 @@ function nextLevel() {
     els.btnRun.classList.remove('secondary-btn', 'retry-mode');
     els.btnRun.classList.add('primary-btn');
     resetState();
-    loadRanking();
     showTutorialIfNeeded();
 }
 
@@ -417,7 +378,6 @@ export async function init() {
     commandPanelUI.bindEditorControls();
     renderCommandsForCurrentLevel();
     resetState();
-    loadRanking();
 
     // Mostrar Lore si es primera vez
     if (startFromBeginning) {
@@ -450,7 +410,6 @@ export async function init() {
     els.btnPlayAgain.addEventListener('click', playAgain);
     els.btnNextLevel.addEventListener('click', nextLevel);
     els.btnRetry.addEventListener('click', retryLevel);
-    els.btnSaveScore.addEventListener('click', saveScore);
     els.btnTutorialContinue.addEventListener('click', () => {
         tutorialSystem.nextPage();
     });

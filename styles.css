@@ -611,66 +611,8 @@ header {
     margin-bottom: 0.5rem;
 }
 
-.score-display {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #4ade80; /* Green 400 */
-}
-
 .hidden {
     display: none !important;
-}
-
-.input-group {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 1rem;
-}
-
-.input-group input {
-    flex: 1;
-    padding: 0.8rem;
-    border-radius: 0.5rem;
-    border: 1px solid var(--panel-border);
-    background: rgba(0,0,0,0.3);
-    color: white;
-    font-size: 1rem;
-    outline: none;
-}
-
-.input-group input:focus {
-    border-color: var(--primary);
-}
-
-.ranking-section {
-    margin-top: 1.5rem;
-    text-align: left;
-    background: rgba(0,0,0,0.2);
-    border-radius: 0.5rem;
-    padding: 1rem;
-}
-
-.ranking-section h3 {
-    font-size: 1.1rem;
-    margin-bottom: 0.8rem;
-    text-align: center;
-}
-
-.ranking-list {
-    list-style: none;
-    max-height: 150px;
-    overflow-y: auto;
-}
-
-.ranking-list li {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.4rem 0;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-}
-
-.ranking-list li:last-child {
-    border-bottom: none;
 }
 
 .mt-3 {
