@@ -65,26 +65,6 @@ export const commandPanelUI = {
         this.updateCommandAvailability();
     },
 
-    undoCommand() {
-        if (gameState.playing || gameState.sequence.length === 0) return;
-        if (this.cursorIndex !== null && this.cursorIndex >= 0) {
-            gameState.sequence.splice(this.cursorIndex, 1);
-            this.cursorIndex = Math.min(this.cursorIndex - 1, gameState.sequence.length - 1);
-        } else {
-            gameState.sequence.pop();
-            this.cursorIndex = gameState.sequence.length - 1;
-        }
-        this.clearSelection();
-        gameState.commandsUsed = gameState.sequence.length;
-        this.updateSequenceUI();
-    },
-
-    removeCommand(idx) {
-        this.selectedIndices.delete(idx);
-        gameState.sequence.splice(idx, 1);
-        gameState.commandsUsed = gameState.sequence.length;
-    },
-
     insertCommandAtCursor(command) {
         const insertionPos = this.cursorIndex === null
             ? gameState.sequence.length
@@ -174,7 +154,7 @@ export const commandPanelUI = {
         const firstSelected = selected[0];
 
         for (let i = selected.length - 1; i >= 0; i--) {
-            this.removeCommand(selected[i]);
+            gameState.sequence.splice(selected[i], 1);
         }
 
         this.clearSelection();

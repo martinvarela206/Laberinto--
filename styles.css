@@ -339,19 +339,6 @@ header {
     cursor: not-allowed;
 }
 
-.icon-btn {
-    background: transparent;
-    border: none;
-    font-size: 1.2rem;
-    cursor: pointer;
-    opacity: 0.7;
-    transition: opacity 0.2s;
-}
-
-.icon-btn:hover {
-    opacity: 1;
-}
-
 /* Maze Grid */
 .maze-grid {
     display: grid;

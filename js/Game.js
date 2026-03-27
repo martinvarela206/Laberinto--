@@ -82,8 +82,6 @@ function resetState() {
     els.btnRun.innerHTML = '▶️ Ejecutar';
     els.btnRun.classList.remove('secondary-btn', 'retry-mode');
     els.btnRun.classList.add('primary-btn');
-
-    els.btnUndo.disabled = false;
     els.commandsBank.style.pointerEvents = 'auto';
 
     gridRenderer.render(gameState.level);
@@ -142,7 +140,6 @@ async function startRun() {
 
     gameState.playing = true;
     els.btnRun.disabled = true;
-    els.btnUndo.disabled = true;
     els.commandsBank.style.pointerEvents = 'none';
 
     const executionPlan = evaluateSequence(gameState.sequence);
@@ -234,8 +231,6 @@ function retryLevel() {
     els.btnRun.innerHTML = '▶️ Ejecutar';
     els.btnRun.classList.remove('secondary-btn', 'retry-mode');
     els.btnRun.classList.add('primary-btn');
-
-    els.btnUndo.disabled = false;
     els.commandsBank.style.pointerEvents = 'auto';
 
     gridRenderer.render(gameState.level);
@@ -339,7 +334,6 @@ function enableGamePanel() {
     els.btnRun.innerHTML = '▶️ Ejecutar';
     els.btnRun.classList.remove('secondary-btn', 'retry-mode');
     els.btnRun.classList.add('primary-btn');
-    els.btnUndo.disabled = false;
     els.commandsBank.style.pointerEvents = 'auto';
     startTimer();
 }
@@ -405,7 +399,6 @@ export async function init() {
     }
 
     // Event listeners
-    els.btnUndo.addEventListener('click', () => commandPanelUI.undoCommand());
     els.btnRun.addEventListener('click', startRun);
     els.btnReset.addEventListener('click', resetLevel);
     els.btnPlayAgain.addEventListener('click', playAgain);

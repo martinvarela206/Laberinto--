@@ -18,7 +18,6 @@ export function getDOMRefs() {
             btnSeqPaste: document.getElementById('btn-seq-paste'),
             btnSeqDelete: document.getElementById('btn-seq-delete'),
             gridContainer: document.getElementById('grid-container'),
-            btnUndo: document.getElementById('btn-undo'),
             btnRun: document.getElementById('btn-run'),
             btnReset: document.getElementById('btn-reset'),
             timeCount: document.getElementById('time-count'),
