@@ -5,11 +5,15 @@ import { gameState } from '../core/GameState.js';
  * GridRenderer - Renderizado de la grilla del laberinto y posición del jugador.
  */
 export const gridRenderer = {
+import { resolveVisualAssets } from '../config/visualAssets.js';
     render(level) {
         const els = getDOMRefs();
         els.gridContainer.innerHTML = '';
 
         // Ajustar grid dinámicamente al tamaño del nivel
+        const visuals = resolveVisualAssets(level?.visualAssets);
+
+        this._applyGridVisualTheme(els.gridContainer, visuals);
         els.gridContainer.style.gridTemplateColumns = `repeat(${level.width}, var(--cell-size))`;
         els.gridContainer.style.gridTemplateRows = `repeat(${level.height}, var(--cell-size))`;
 
@@ -25,7 +29,7 @@ export const gridRenderer = {
         }
 
         // Casillas de borde virtuales para representar visualmente el límite.
-        this._renderEdgeCells(level, els.gridContainer);
+        this._renderEdgeCells(level, els.gridContainer, visuals);
 
         // Meta
         const goalCell = this.getCell(level.goal.x, level.goal.y);
@@ -34,7 +38,7 @@ export const gridRenderer = {
             goalEl.className = 'goal';
             goalEl.innerText = '🏁';
             goalCell.appendChild(goalEl);
-        }
+            this._applyEntityAsset(goalEl, visuals.goal, 'goal-visual');
 
         // Paredes
         if (level.walls) {
@@ -45,7 +49,7 @@ export const gridRenderer = {
                     wallEl.className = 'wall';
                     wallEl.innerText = '🧱';
                     cell.appendChild(wallEl);
-                }
+                    this._applyEntityAsset(wallEl, visuals.wall, 'wall-visual');
             });
         }
 
@@ -58,7 +62,7 @@ export const gridRenderer = {
         playerInner.className = 'player-inner';
         playerInner.innerText = '🤖';
         playerEl.appendChild(playerInner);
-
+        this._applyEntityAsset(playerInner, visuals.player, 'player-visual');
         els.gridContainer.appendChild(playerEl);
         this.updatePlayerPosition();
     },
@@ -180,7 +184,7 @@ export const gridRenderer = {
         cell.style.setProperty(`--trail-${direction}`, '1');
     },
 
-    _renderEdgeCells(level, container) {
+    _renderEdgeCells(level, container, visuals) {
         const makeEdgeCell = (edgeX, edgeY) => {
             const edgeCell = document.createElement('div');
             edgeCell.className = 'edge-cell';
@@ -200,6 +204,8 @@ export const gridRenderer = {
                 edgeCell.style.left = `calc(var(--cell-size) * ${level.width})`;
                 edgeCell.style.top = `calc(var(--cell-size) * ${edgeY})`;
             }
+
+            this._applyEntityAsset(edgeCell, visuals?.edge, 'edge-visual');
 
             container.appendChild(edgeCell);
         };
@@ -234,3 +240,40 @@ export const gridRenderer = {
         return els.gridContainer.querySelector(`.edge-cell[data-edge-x="${edgeX}"][data-edge-y="${edgeY}"]`);
     }
 };
+
+    
+    _applyGridVisualTheme(container, visuals) {
+        const map = visuals?.map || {};
+        const edge = visuals?.edgeStyle || {};
+
+        container.style.setProperty('--map-bg', map.backgroundColor || 'var(--grid-bg)');
+        container.style.setProperty('--map-border', map.borderColor || 'var(--maze-border)');
+        container.style.setProperty('--map-outline', map.outlineColor || 'rgba(239, 68, 68, 0.5)');
+
+        container.style.setProperty('--edge-border-color', edge.borderColor || 'rgba(148, 163, 184, 0.55)');
+        container.style.setProperty('--edge-bg-start', edge.backgroundStart || 'rgba(15, 23, 42, 0.45)');
+        container.style.setProperty('--edge-bg-end', edge.backgroundEnd || 'rgba(30, 41, 59, 0.7)');
+    },
+
+    _applyEntityAsset(targetEl, asset, className) {
+        const safeAsset = asset || { type: 'emoji', value: '' };
+        const type = safeAsset.type || 'emoji';
+
+        targetEl.classList.add('entity-asset-host');
+        if (className) {
+            targetEl.classList.add(className);
+        }
+
+        if (type === 'image' && safeAsset.src) {
+            const img = document.createElement('img');
+            img.className = 'entity-asset entity-asset-image';
+            img.src = safeAsset.src;
+            img.alt = safeAsset.alt || '';
+            targetEl.appendChild(img);
+            return;
+        }
+
+        const span = document.createElement('span');
+        span.className = 'entity-asset entity-asset-emoji';
+        span.textContent = safeAsset.value || '';
+        targetEl.appendChild(span);

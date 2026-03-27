@@ -17,7 +17,8 @@ export class Level {
         defaultCommandLimit = Infinity,
         commandLimits = {},
         tutorialPages = [],
-        initialSequence = []
+        initialSequence = [],
+        visualAssets = {}
     }) {
         this.id = id;
         this.name = name || id;
@@ -33,6 +34,7 @@ export class Level {
         this.commandLimits = { ...commandLimits };
         this.tutorialPages = tutorialPages.map((page) => ({ ...page }));
         this.initialSequence = [...initialSequence];
+        this.visualAssets = { ...visualAssets };
     }
 
     addObstacle(pos) {
@@ -56,7 +58,8 @@ export class Level {
             defaultCommandLimit: this.defaultCommandLimit,
             commandLimits: { ...this.commandLimits },
             tutorialPages: this.tutorialPages.map((page) => ({ ...page })),
-            initialSequence: [...this.initialSequence]
+            initialSequence: [...this.initialSequence],
+            visualAssets: { ...this.visualAssets }
         });
     }
 }
