@@ -99,7 +99,7 @@ function gameOver(isWin, msg) {
     if (isWin) {
         const score = calculateScore(gameState.commandsUsed, gameState.timer);
         modalUI.showWin(msg, score);
-        
+
         // Mostrar botón "Siguiente nivel" si hay nivel siguiente
         const nextLevelId = getNextLevelId(gameState.currentLevelId);
         if (nextLevelId) {
@@ -205,8 +205,9 @@ async function startRun() {
 }
 
 function resetLevel() {
-    gameState.playing = false;
-    setLevelById('level-001');
+    const levelIdToReset = getCurrentLevelId();
+    setLevelById(levelIdToReset);
+    gameState.playing = false;    
     renderCommandsForCurrentLevel();
     resetState();
     loadRanking();
@@ -293,10 +294,10 @@ function nextLevel() {
  */
 function markFailurePosition(position) {
     if (!position) return;
-    
+
     const cell = gridRenderer.getCell(position.x, position.y);
     if (!cell) return;
-    
+
     const marker = document.createElement('div');
     marker.className = 'failure-marker';
     marker.id = `failure-marker-${position.x}-${position.y}`;
@@ -311,7 +312,7 @@ function markFailurePosition(position) {
     marker.style.justifyContent = 'center';
     marker.style.fontSize = '1.5rem';
     marker.style.zIndex = '3';
-    
+
     cell.appendChild(marker);
 }
 
@@ -320,7 +321,7 @@ function markFailurePosition(position) {
  */
 function clearFailureMarker() {
     if (!gameState.failureMarkerPosition) return;
-    
+
     const markerId = `failure-marker-${gameState.failureMarkerPosition.x}-${gameState.failureMarkerPosition.y}`;
     const marker = document.getElementById(markerId);
     if (marker) {
@@ -385,7 +386,7 @@ export async function init() {
         const loreInit = await loreSystem.initialize();
         if (loreInit.shouldShow) {
             loreSystem.show();
-            
+
             // Configurar botones de lore
             if (els.btnLoreNext) {
                 els.btnLoreNext.addEventListener('click', () => {
