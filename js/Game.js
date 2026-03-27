@@ -198,8 +198,8 @@ async function startRun() {
 
             if (check === 'lose_bounds' || check === 'lose_wall') {
                 if (check === 'lose_bounds') {
-                    // La posición fuera de grilla no tiene celda; marcamos la última válida.
-                    gameState.failureMarkerPosition = { ...previousPosition };
+                    // Para outOfBounds, la X debe mostrarse en la casilla de borde virtual.
+                    gameState.failureMarkerPosition = { ...targetPosition };
                     gameOver(false, "Oh no! Te caíste del laberinto.");
                 } else {
                     gameOver(false, "¡Ouch! Chocaste con un obstáculo.");

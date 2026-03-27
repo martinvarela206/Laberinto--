@@ -24,6 +24,9 @@ export const gridRenderer = {
             }
         }
 
+        // Casillas de borde virtuales para representar visualmente el límite.
+        this._renderEdgeCells(level, els.gridContainer);
+
         // Meta
         const goalCell = this.getCell(level.goal.x, level.goal.y);
         if (goalCell) {
@@ -62,7 +65,9 @@ export const gridRenderer = {
 
     getCell(x, y) {
         const els = getDOMRefs();
-        if (x < 0 || x >= gameState.level.width || y < 0 || y >= gameState.level.height) return null;
+        if (x < 0 || x >= gameState.level.width || y < 0 || y >= gameState.level.height) {
+            return this._getEdgeCell(x, y);
+        }
         return els.gridContainer.children[y * gameState.level.width + x];
     },
 
@@ -173,5 +178,59 @@ export const gridRenderer = {
         cell.classList.add('trail-cell', 'trail-node', 'trail-animate');
         this._ensureTrailVars(cell);
         cell.style.setProperty(`--trail-${direction}`, '1');
+    },
+
+    _renderEdgeCells(level, container) {
+        const makeEdgeCell = (edgeX, edgeY) => {
+            const edgeCell = document.createElement('div');
+            edgeCell.className = 'edge-cell';
+            edgeCell.dataset.edgeX = String(edgeX);
+            edgeCell.dataset.edgeY = String(edgeY);
+
+            if (edgeY === -1) {
+                edgeCell.style.left = `calc(var(--cell-size) * ${edgeX})`;
+                edgeCell.style.top = 'calc(-1 * var(--cell-size))';
+            } else if (edgeY === level.height) {
+                edgeCell.style.left = `calc(var(--cell-size) * ${edgeX})`;
+                edgeCell.style.top = `calc(var(--cell-size) * ${level.height})`;
+            } else if (edgeX === -1) {
+                edgeCell.style.left = 'calc(-1 * var(--cell-size))';
+                edgeCell.style.top = `calc(var(--cell-size) * ${edgeY})`;
+            } else if (edgeX === level.width) {
+                edgeCell.style.left = `calc(var(--cell-size) * ${level.width})`;
+                edgeCell.style.top = `calc(var(--cell-size) * ${edgeY})`;
+            }
+
+            container.appendChild(edgeCell);
+        };
+
+        for (let x = 0; x < level.width; x++) {
+            makeEdgeCell(x, -1);
+            makeEdgeCell(x, level.height);
+        }
+
+        for (let y = 0; y < level.height; y++) {
+            makeEdgeCell(-1, y);
+            makeEdgeCell(level.width, y);
+        }
+    },
+
+    _getEdgeCell(x, y) {
+        const level = gameState.level;
+        if (!level) return null;
+
+        const clampedX = Math.max(0, Math.min(x, level.width - 1));
+        const clampedY = Math.max(0, Math.min(y, level.height - 1));
+
+        let edgeX = clampedX;
+        let edgeY = clampedY;
+
+        if (x < 0) edgeX = -1;
+        if (x >= level.width) edgeX = level.width;
+        if (y < 0) edgeY = -1;
+        if (y >= level.height) edgeY = level.height;
+
+        const els = getDOMRefs();
+        return els.gridContainer.querySelector(`.edge-cell[data-edge-x="${edgeX}"][data-edge-y="${edgeY}"]`);
     }
 };
