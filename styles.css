@@ -388,6 +388,15 @@ header {
     z-index: 10;
 }
 
+.player-inner {
+    display: inline-block;
+    will-change: transform, opacity, filter;
+}
+
+.player.fall-void .player-inner {
+    animation: playerFallVoid 0.65s cubic-bezier(0.18, 0.8, 0.2, 1) forwards;
+}
+
 /* Trail System */
 :root {
     --trail-color: #3b82f6;
@@ -463,6 +472,19 @@ header {
     100% {
         transform: scale(1);
         opacity: 1;
+    }
+}
+
+@keyframes playerFallVoid {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+        filter: blur(0px);
+    }
+    100% {
+        transform: translateY(35%) scale(0.12);
+        opacity: 0.12;
+        filter: blur(1.4px);
     }
 }
 

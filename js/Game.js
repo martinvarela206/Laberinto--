@@ -161,6 +161,13 @@ async function startRun() {
 
                 await delay(1500);
 
+                // En caída fuera del laberinto, simular profundidad con zoom out.
+                if (check === 'lose_bounds' && playerEl) {
+                    playerEl.classList.add('fall-void');
+                    await delay(650);
+                    playerEl.classList.remove('fall-void');
+                }
+
                 if (playerEl) playerEl.style.transition = '';
 
                 if (!gameState.playing) return;

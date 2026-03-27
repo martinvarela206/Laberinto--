@@ -50,7 +50,12 @@ export const gridRenderer = {
         const playerEl = document.createElement('div');
         playerEl.id = 'player';
         playerEl.className = 'player';
-        playerEl.innerText = '🤖';
+
+        const playerInner = document.createElement('span');
+        playerInner.className = 'player-inner';
+        playerInner.innerText = '🤖';
+        playerEl.appendChild(playerInner);
+
         els.gridContainer.appendChild(playerEl);
         this.updatePlayerPosition();
     },
