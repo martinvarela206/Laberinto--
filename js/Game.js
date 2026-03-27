@@ -242,6 +242,20 @@ function resetLevel() {
     showTutorialIfNeeded(true);
 }
 
+async function fullResetGame() {
+    const confirmReset = window.confirm(
+        'Esto borrará todo el progreso guardado, lore visto, ranking y configuración. ¿Deseas continuar?'
+    );
+    if (!confirmReset) return;
+
+    try {
+        await StorageSystem.clearAll();
+        window.location.reload();
+    } catch (e) {
+        console.error('Error al reiniciar por completo el juego:', e);
+    }
+}
+
 function retryLevel() {
     const els = getDOMRefs();
     modalUI.hide();
@@ -432,6 +446,7 @@ export async function init() {
     // Event listeners
     els.btnRun.addEventListener('click', startRun);
     els.btnReset.addEventListener('click', resetLevel);
+    els.btnResetAll?.addEventListener('click', fullResetGame);
     els.btnPlayAgain.addEventListener('click', playAgain);
     els.btnNextLevel.addEventListener('click', nextLevel);
     els.btnRetry.addEventListener('click', retryLevel);

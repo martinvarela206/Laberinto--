@@ -20,6 +20,7 @@ export function getDOMRefs() {
             gridContainer: document.getElementById('grid-container'),
             btnRun: document.getElementById('btn-run'),
             btnReset: document.getElementById('btn-reset'),
+            btnResetAll: document.getElementById('btn-reset-all'),
             timeCount: document.getElementById('time-count'),
             commandsCount: document.getElementById('commands-count'),
             
