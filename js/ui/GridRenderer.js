@@ -1,19 +1,19 @@
 import { getDOMRefs } from './DOMRefs.js';
 import { gameState } from '../core/GameState.js';
+import { resolveVisualAssets } from '../config/visualAssets.js';
 
 /**
  * GridRenderer - Renderizado de la grilla del laberinto y posición del jugador.
  */
 export const gridRenderer = {
-import { resolveVisualAssets } from '../config/visualAssets.js';
     render(level) {
         const els = getDOMRefs();
-        els.gridContainer.innerHTML = '';
-
-        // Ajustar grid dinámicamente al tamaño del nivel
         const visuals = resolveVisualAssets(level?.visualAssets);
 
+        els.gridContainer.innerHTML = '';
         this._applyGridVisualTheme(els.gridContainer, visuals);
+
+        // Ajustar grid dinámicamente al tamaño del nivel
         els.gridContainer.style.gridTemplateColumns = `repeat(${level.width}, var(--cell-size))`;
         els.gridContainer.style.gridTemplateRows = `repeat(${level.height}, var(--cell-size))`;
 
@@ -36,20 +36,20 @@ import { resolveVisualAssets } from '../config/visualAssets.js';
         if (goalCell) {
             const goalEl = document.createElement('div');
             goalEl.className = 'goal';
-            goalEl.innerText = '🏁';
-            goalCell.appendChild(goalEl);
             this._applyEntityAsset(goalEl, visuals.goal, 'goal-visual');
+            goalCell.appendChild(goalEl);
+        }
 
         // Paredes
         if (level.walls) {
-            level.walls.forEach(w => {
+            level.walls.forEach((w) => {
                 const cell = this.getCell(w.x, w.y);
                 if (cell) {
                     const wallEl = document.createElement('div');
                     wallEl.className = 'wall';
-                    wallEl.innerText = '🧱';
-                    cell.appendChild(wallEl);
                     this._applyEntityAsset(wallEl, visuals.wall, 'wall-visual');
+                    cell.appendChild(wallEl);
+                }
             });
         }
 
@@ -60,9 +60,9 @@ import { resolveVisualAssets } from '../config/visualAssets.js';
 
         const playerInner = document.createElement('span');
         playerInner.className = 'player-inner';
-        playerInner.innerText = '🤖';
-        playerEl.appendChild(playerInner);
         this._applyEntityAsset(playerInner, visuals.player, 'player-visual');
+        playerEl.appendChild(playerInner);
+
         els.gridContainer.appendChild(playerEl);
         this.updatePlayerPosition();
     },
@@ -72,7 +72,7 @@ import { resolveVisualAssets } from '../config/visualAssets.js';
         if (x < 0 || x >= gameState.level.width || y < 0 || y >= gameState.level.height) {
             return this._getEdgeCell(x, y);
         }
-        return els.gridContainer.children[y * gameState.level.width + x];
+        return els.gridContainer.children[y * gameState.level.width + x] || null;
     },
 
     updatePlayerPosition() {
@@ -86,10 +86,10 @@ import { resolveVisualAssets } from '../config/visualAssets.js';
      */
     markTrailCell(position) {
         if (!this._isValidPosition(position)) return;
-        
+
         const cell = this.getCell(position.x, position.y);
         if (!cell) return;
-        
+
         cell.classList.add('trail-cell', 'trail-node', 'trail-animate');
         this._ensureTrailVars(cell);
     },
@@ -147,41 +147,24 @@ import { resolveVisualAssets } from '../config/visualAssets.js';
     clearTrailState() {
         const els = getDOMRefs();
         els.gridContainer.classList.remove('trail-success', 'trail-failure');
-        
-        const cells = els.gridContainer.querySelectorAll('.cell');
-        cells.forEach(cell => {
-            cell.classList.remove('trail-cell', 'trail-node', 'trail-animate', 'trail-exit', 
-                                   'trail-exit-up', 'trail-exit-right', 'trail-exit-down', 'trail-exit-left');
+
+        const cells = els.gridContainer.querySelectorAll('.cell, .edge-cell');
+        cells.forEach((cell) => {
+            cell.classList.remove(
+                'trail-cell',
+                'trail-node',
+                'trail-animate',
+                'trail-exit',
+                'trail-exit-up',
+                'trail-exit-right',
+                'trail-exit-down',
+                'trail-exit-left'
+            );
             cell.style.removeProperty('--trail-up');
             cell.style.removeProperty('--trail-right');
             cell.style.removeProperty('--trail-down');
             cell.style.removeProperty('--trail-left');
         });
-    },
-
-    /**
-     * Helpers privados
-     */
-    _isValidPosition(position) {
-        return position && 
-               position.x >= 0 && position.x < gameState.level.width &&
-               position.y >= 0 && position.y < gameState.level.height;
-    },
-
-    _ensureTrailVars(cell) {
-        if (!cell.style.getPropertyValue('--trail-up')) {
-            cell.style.setProperty('--trail-up', '0');
-            cell.style.setProperty('--trail-right', '0');
-            cell.style.setProperty('--trail-down', '0');
-            cell.style.setProperty('--trail-left', '0');
-        }
-    },
-
-    _applyTrailConnection(cell, direction) {
-        if (!cell) return;
-        cell.classList.add('trail-cell', 'trail-node', 'trail-animate');
-        this._ensureTrailVars(cell);
-        cell.style.setProperty(`--trail-${direction}`, '1');
     },
 
     _renderEdgeCells(level, container, visuals) {
@@ -206,7 +189,6 @@ import { resolveVisualAssets } from '../config/visualAssets.js';
             }
 
             this._applyEntityAsset(edgeCell, visuals?.edge, 'edge-visual');
-
             container.appendChild(edgeCell);
         };
 
@@ -238,10 +220,8 @@ import { resolveVisualAssets } from '../config/visualAssets.js';
 
         const els = getDOMRefs();
         return els.gridContainer.querySelector(`.edge-cell[data-edge-x="${edgeX}"][data-edge-y="${edgeY}"]`);
-    }
-};
+    },
 
-    
     _applyGridVisualTheme(container, visuals) {
         const map = visuals?.map || {};
         const edge = visuals?.edgeStyle || {};
@@ -277,3 +257,31 @@ import { resolveVisualAssets } from '../config/visualAssets.js';
         span.className = 'entity-asset entity-asset-emoji';
         span.textContent = safeAsset.value || '';
         targetEl.appendChild(span);
+    },
+
+    _isValidPosition(position) {
+        return (
+            position &&
+            position.x >= 0 &&
+            position.x < gameState.level.width &&
+            position.y >= 0 &&
+            position.y < gameState.level.height
+        );
+    },
+
+    _ensureTrailVars(cell) {
+        if (!cell.style.getPropertyValue('--trail-up')) {
+            cell.style.setProperty('--trail-up', '0');
+            cell.style.setProperty('--trail-right', '0');
+            cell.style.setProperty('--trail-down', '0');
+            cell.style.setProperty('--trail-left', '0');
+        }
+    },
+
+    _applyTrailConnection(cell, direction) {
+        if (!cell) return;
+        cell.classList.add('trail-cell', 'trail-node', 'trail-animate');
+        this._ensureTrailVars(cell);
+        cell.style.setProperty(`--trail-${direction}`, '1');
+    }
+};
