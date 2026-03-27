@@ -13,7 +13,6 @@ export const gameState = {
     commandLimits: {},
     currentLevelId: 'level-001',
     levelNumber: 1,
-    pathTaken: [],
     commandsUsed: 0,
     failureMarkerPosition: null  // Tracks position where player failed
 };

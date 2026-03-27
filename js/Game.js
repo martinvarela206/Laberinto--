@@ -72,7 +72,6 @@ function resetState() {
     gameState.isGameOver = false;
     gameState.timer = gameState.level?.timeLimit || 60;
     gameState.commandsUsed = gameState.sequence.length;
-    gameState.pathTaken = [];
 
     timerSystem.stop();
     hudUI.updateTimer(gameState.timer);
@@ -136,7 +135,6 @@ async function startRun() {
 
     clearFailureMarker();
     gridRenderer.clearTrailState();
-    gameState.pathTaken = [];
 
     gameState.playing = true;
     els.btnRun.disabled = true;
@@ -178,10 +176,6 @@ async function startRun() {
             gridRenderer.updatePlayerPosition();
             // Dibujar trail después del movimiento para sincronización visual
             gridRenderer.markTrailStep(previousPosition, gameState.position);
-
-            if (!gameState.pathTaken.some(p => p.x === gameState.position.x && p.y === gameState.position.y)) {
-                gameState.pathTaken.push({ ...gameState.position });
-            }
         }
     }
 
@@ -222,7 +216,6 @@ function retryLevel() {
     gameState.playing = false;
     gameState.isGameOver = false;
     gameState.timer = gameState.level?.timeLimit || 60;
-    gameState.pathTaken = [];
 
     timerSystem.stop();
     hudUI.updateTimer(gameState.timer);
