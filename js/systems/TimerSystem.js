@@ -1,19 +1,15 @@
 import { gameState } from '../core/GameState.js';
 
 /**
- * TimerSystem - Gestión del temporizador de 60 segundos.
+ * TimerSystem - Gestión del temporizador ascendente en segundos.
  */
 export const timerSystem = {
-    start(onTick, onExpired) {
+    start(onTick) {
         this.stop();
         gameState.intervalId = setInterval(() => {
-            if (!gameState.playing && !gameState.isGameOver) {
-                gameState.timer--;
+            if (!gameState.isGameOver) {
+                gameState.timer++;
                 if (onTick) onTick(gameState.timer);
-                if (gameState.timer <= 0) {
-                    this.stop();
-                    if (onExpired) onExpired();
-                }
             }
         }, 1000);
     },

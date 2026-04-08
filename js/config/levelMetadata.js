@@ -40,7 +40,7 @@ export const LEVEL_METADATA = {
     },
     'level-007': {
         id: 'level-007',
-        name: 'Corredor zig-zag',
+        name: 'Aventura libre',
         order: 7
     },
     'level-008': {

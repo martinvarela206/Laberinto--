@@ -76,8 +76,7 @@ function delay(ms) {
 
 function startTimer() {
     timerSystem.start(
-        (time) => hudUI.updateTimer(time),
-        () => gameOver(false, "¡Se acabó el tiempo!")
+        (time) => hudUI.updateTimer(time)
     );
 }
 
@@ -93,7 +92,7 @@ function resetState() {
     gameState.position = { ...gameState.level.playerStart };
     gameState.playing = false;
     gameState.isGameOver = false;
-    gameState.timer = gameState.level?.timeLimit || 60;
+    gameState.timer = 0;
     gameState.commandsUsed = gameState.sequence.length;
 
     timerSystem.stop();
@@ -118,11 +117,18 @@ function gameOver(isWin, msg) {
     animationSystem.clearInfiniteAnimations();
 
     if (isWin) {
+        if (gameState.currentLevelId === 'level-007') {
+            const commands = gameState.sequence.length;
+            const seconds = gameState.timer;
+            const score = Math.max(0, 1000 - commands - seconds);
+            msg = `${msg}\nPuntaje: ${score} (1000 - ${commands} comandos - ${seconds} segundos)`;
+        }
+
         modalUI.showWin(msg);
         
         // Mostrar botón "Siguiente nivel" si hay nivel siguiente
         const nextLevelId = getNextLevelId(gameState.currentLevelId);
-        if (nextLevelId) {
+        if (nextLevelId && gameState.currentLevelId !== 'level-007') {
             modalUI.showNextLevel();
         }
     } else {
@@ -287,7 +293,7 @@ function retryLevel() {
     gameState.position = { ...gameState.level.playerStart };
     gameState.playing = false;
     gameState.isGameOver = false;
-    gameState.timer = gameState.level?.timeLimit || 60;
+    gameState.timer = 0;
 
     timerSystem.stop();
     hudUI.updateTimer(gameState.timer);

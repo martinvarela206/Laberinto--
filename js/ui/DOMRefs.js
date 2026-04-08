@@ -21,6 +21,7 @@ export function getDOMRefs() {
             btnRun: document.getElementById('btn-run'),
             btnReset: document.getElementById('btn-reset'),
             btnResetAll: document.getElementById('btn-reset-all'),
+            timeStat: document.getElementById('time-stat'),
             timeCount: document.getElementById('time-count'),
             commandsCount: document.getElementById('commands-count'),
             
