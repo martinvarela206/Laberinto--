@@ -105,7 +105,7 @@ class TutorialSystem {
 
         if (this.domRefs.btnTutorialContinue) {
             const isLastPage = this.pageIndex >= this.pages.length - 1;
-            this.domRefs.btnTutorialContinue.textContent = isLastPage ? 'Comenzar nivel' : 'Siguiente pagina';
+            this.domRefs.btnTutorialContinue.textContent = isLastPage ? 'Comenzar nivel' : 'Siguiente página';
         }
     }
 

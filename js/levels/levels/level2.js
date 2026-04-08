@@ -21,7 +21,7 @@ const level2 = new Level({
         {
             title: 'Tutorial 2: Bajar',
             command: 'down',
-            description: 'Ahora aprenderas el comando down. Sirve para mover al robot una celda hacia abajo y combinarlo con right.',
+            description: 'Ahora aprenderás el comando down. Sirve para mover al robot una celda hacia abajo y combinarlo con right.',
             objective: 'Avanza hacia la derecha y luego baja para alcanzar la meta.'
         }
     ]

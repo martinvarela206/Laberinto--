@@ -22,7 +22,7 @@ const level8 = new Level({
         {
             title: 'Tutorial 6: Corregir un programa',
             command: 'clic',
-            description: 'El robot recibio un programa con un error: tiene un comando de mas que lo hace caer del camino.',
+            description: 'El robot recibió un programa con un error: tiene un comando de más que lo hace caer del camino.',
             objective: 'Haz clic sobre un comando para eliminarlo de la secuencia.'
         },
         {

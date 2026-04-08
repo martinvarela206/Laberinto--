@@ -21,7 +21,7 @@ const level3 = new Level({
         {
             title: 'Tutorial 3: Arriba',
             command: 'up',
-            description: 'Este nivel te ensena el comando up. Sirve para mover al robot una celda hacia arriba.',
+            description: 'Este nivel te enseña el comando up. Sirve para mover al robot una celda hacia arriba.',
             objective: 'Combina right y up para llegar a la meta ubicada en la fila superior.'
         }
     ]

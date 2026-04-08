@@ -21,7 +21,7 @@ const level4 = new Level({
         {
             title: 'Tutorial 4: Izquierda',
             command: 'left',
-            description: 'En este nivel aprenderas el comando left para desplazarte una celda hacia la izquierda.',
+            description: 'En este nivel aprenderás el comando left para desplazarte una celda hacia la izquierda.',
             objective: 'Comienza desde la derecha y usa left junto con down para alcanzar la meta.'
         }
     ]

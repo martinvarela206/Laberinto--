@@ -21,8 +21,8 @@ const level1 = new Level({
         {
             title: 'Tutorial 1: Mover a la derecha',
             command: 'right',
-            description: 'Este nivel te ensena el comando right. Cada vez que lo uses, el robot avanzara una celda hacia la derecha.',
-            objective: 'Llega hasta la meta avanzando en linea recta usando solamente right.'
+            description: 'Este nivel te enseña el comando right. Cada vez que lo uses, el robot avanzará una celda hacia la derecha.',
+            objective: 'Llega hasta la meta avanzando en línea recta usando solamente right.'
         }
     ]
 });

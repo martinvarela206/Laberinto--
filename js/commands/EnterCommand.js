@@ -6,7 +6,7 @@ import { Command } from './Command.js';
  */
 export class EnterCommand extends Command {
     constructor() {
-        super('enter', 'Siguiente Bloque', '↵');
+        super('enter', 'Siguiente bloque', '↵');
     }
 
     getExecutionStates() {

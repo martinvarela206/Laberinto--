@@ -21,8 +21,8 @@ const level5 = new Level({
         {
             title: 'Tutorial 5: Repetir bloques',
             command: 'repeat + enter',
-            description: 'En este nivel aprenderas a repetir una secuencia. Usa enter para separar bloques y repeat para duplicar el bloque actual.',
-            objective: 'Construye una ruta mas larga combinando movimientos con repeat y enter para llegar a la meta.'
+            description: 'En este nivel aprenderás a repetir una secuencia. Usa enter para separar bloques y repeat para duplicar el bloque actual.',
+            objective: 'Construye una ruta más larga combinando movimientos con repeat y enter para llegar a la meta.'
         }
     ]
 });

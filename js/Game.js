@@ -179,7 +179,7 @@ async function startRun() {
                 if (check === 'lose_bounds') {
                     // Para outOfBounds, la X debe mostrarse en la casilla de borde virtual.
                     gameState.failureMarkerPosition = { ...targetPosition };
-                    gameOver(false, "Oh no! Te caíste del laberinto.");
+                    gameOver(false, "¡Oh no! Te caíste del laberinto.");
                 } else {
                     gameOver(false, "¡Ouch! Chocaste con un obstáculo.");
                 }
