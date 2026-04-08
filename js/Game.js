@@ -28,6 +28,42 @@ import { getAllLevelIds } from './config/levelMetadata.js';
 let loreSystem = null;
 let tutorialSystem = null;
 
+function resolveLevelIdFromUrlPath() {
+    const path = window.location.pathname || '';
+    const cleanPath = path.replace(/\/+$/, '');
+    const parts = cleanPath.split('/').filter(Boolean);
+    const candidate = parts.length ? parts[parts.length - 1] : '';
+
+    if (!/^\d+$/.test(candidate)) {
+        return null;
+    }
+
+    const requestedNumber = Number.parseInt(candidate, 10);
+    if (!Number.isFinite(requestedNumber) || requestedNumber < 1) {
+        return null;
+    }
+
+    const allIds = getAllLevelIds();
+    if (requestedNumber > allIds.length) {
+        return null;
+    }
+
+    return allIds[requestedNumber - 1] || null;
+}
+
+async function applyHiddenProgressForLevel(levelId) {
+    const allIds = getAllLevelIds();
+    const levelIndex = allIds.indexOf(levelId);
+
+    if (levelIndex <= 0) {
+        await StorageSystem.clearLastCompletedLevel();
+        return;
+    }
+
+    const previousLevelId = allIds[levelIndex - 1];
+    await StorageSystem.saveLastCompletedLevel(previousLevelId);
+}
+
 function delay(ms) {
     return new Promise(res => setTimeout(res, ms));
 }
@@ -356,19 +392,35 @@ export async function init() {
     let firstLevelId = 'level-001';
     let startFromBeginning = true;
 
-    // Intentar retomar progreso guardado
-    try {
-        const lastCompletedLevel = await StorageSystem.getLastCompletedLevel();
-        if (lastCompletedLevel) {
-            // Obtener siguiente nivel después del completado
-            const nextLevel = levelRegistry.getNextLevel(lastCompletedLevel);
-            if (nextLevel) {
-                firstLevelId = getNextLevelId(lastCompletedLevel);
-                startFromBeginning = false;
-            }
+    const forcedLevelId = resolveLevelIdFromUrlPath();
+
+    // Modo oculto: /num para saltar de forma directa a un nivel.
+    if (forcedLevelId) {
+        firstLevelId = forcedLevelId;
+        startFromBeginning = false;
+
+        try {
+            await applyHiddenProgressForLevel(forcedLevelId);
+        } catch (e) {
+            console.warn('Error applying hidden URL level progress:', e);
         }
-    } catch (e) {
-        console.warn('Error reading progress:', e);
+    }
+
+    // Intentar retomar progreso guardado
+    if (!forcedLevelId) {
+        try {
+            const lastCompletedLevel = await StorageSystem.getLastCompletedLevel();
+            if (lastCompletedLevel) {
+                // Obtener siguiente nivel después del completado
+                const nextLevel = levelRegistry.getNextLevel(lastCompletedLevel);
+                if (nextLevel) {
+                    firstLevelId = getNextLevelId(lastCompletedLevel);
+                    startFromBeginning = false;
+                }
+            }
+        } catch (e) {
+            console.warn('Error reading progress:', e);
+        }
     }
 
     // Cargar nivel inicial por ID

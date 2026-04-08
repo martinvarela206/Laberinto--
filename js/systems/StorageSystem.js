@@ -46,6 +46,19 @@ class StorageSystem {
     }
 
     /**
+     * Clear last completed level
+     */
+    static async clearLastCompletedLevel() {
+        try {
+            localStorage.removeItem(this.KEYS.LAST_COMPLETED_LEVEL);
+            return { success: true };
+        } catch (e) {
+            console.error('Error clearing completed level:', e);
+            return { success: false, error: e.message };
+        }
+    }
+
+    /**
      * Mark lore as seen
      */
     static async markLoreSeen() {
@@ -185,6 +198,7 @@ export const hasSeenLore = () => StorageSystem.hasSeenLore();
 export const markLoreSeen = () => StorageSystem.markLoreSeen();
 export const saveLastCompletedLevel = (levelId) => StorageSystem.saveLastCompletedLevel(levelId);
 export const getLastCompletedLevel = () => StorageSystem.getLastCompletedLevel();
+export const clearLastCompletedLevel = () => StorageSystem.clearLastCompletedLevel();
 export const saveRankingEntry = (entry) => StorageSystem.saveRankingEntry(entry);
 export const getRanking = () => StorageSystem.getRanking();
 export const clearRanking = () => StorageSystem.clearRanking();
