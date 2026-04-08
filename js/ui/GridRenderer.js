@@ -17,6 +17,7 @@ export const gridRenderer = {
 
         els.gridContainer.innerHTML = '';
         this._applyGridVisualTheme(els.gridContainer, visuals);
+        this._syncGridDimensions(level);
 
         // Ajustar grid dinámicamente al tamaño del nivel
         els.gridContainer.style.gridTemplateColumns = `repeat(${level.width}, var(--cell-size))`;
@@ -84,6 +85,40 @@ export const gridRenderer = {
         const playerEl = document.getElementById('player');
         if (!playerEl) return;
         playerEl.style.transform = `translate(${gameState.position.x * 100}%, ${gameState.position.y * 100}%)`;
+    },
+
+    syncResponsiveLayout(level = gameState.level) {
+        this._syncGridDimensions(level);
+    },
+
+    _syncGridDimensions(level) {
+        const els = getDOMRefs();
+        if (!level || !els.gridContainer) return;
+
+        const parent = els.gridContainer.parentElement;
+        const parentStyles = parent ? getComputedStyle(parent) : null;
+        const horizontalPadding = parentStyles
+            ? (parseFloat(parentStyles.paddingLeft) || 0) + (parseFloat(parentStyles.paddingRight) || 0)
+            : 0;
+        const verticalPadding = parentStyles
+            ? (parseFloat(parentStyles.paddingTop) || 0) + (parseFloat(parentStyles.paddingBottom) || 0)
+            : 0;
+
+        const availableWidth = parent
+            ? Math.max(0, parent.clientWidth - horizontalPadding)
+            : window.innerWidth;
+        const availableHeight = parent
+            ? Math.max(0, parent.clientHeight - verticalPadding)
+            : window.innerHeight;
+
+        const widthBasedCell = Math.floor(availableWidth / (level.width + 2));
+        const heightBasedCell = Math.floor(availableHeight / (level.height + 2));
+
+        const cellSize = Math.max(14, Math.min(40, widthBasedCell || 14, heightBasedCell || 40));
+
+        els.gridContainer.style.setProperty('--cell-size', `${cellSize}px`);
+        els.gridContainer.style.setProperty('--grid-width', String(level.width));
+        els.gridContainer.style.setProperty('--grid-height', String(level.height));
     },
 
     /**

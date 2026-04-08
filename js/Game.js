@@ -414,7 +414,10 @@ export async function init() {
         tutorialSystem.nextPage();
     });
 
-    window.addEventListener('resize', () => gridRenderer.updatePlayerPosition());
+    window.addEventListener('resize', () => {
+        gridRenderer.syncResponsiveLayout(gameState.level);
+        gridRenderer.updatePlayerPosition();
+    });
 }
 
 /**
