@@ -167,6 +167,8 @@ async function startRun() {
     const els = getDOMRefs();
     if (gameState.sequence.length === 0) return;
 
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
     clearFailureMarker();
     gridRenderer.clearTrailState();
     animationSystem.clearInfiniteAnimations();
