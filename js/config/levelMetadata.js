@@ -30,12 +30,12 @@ export const LEVEL_METADATA = {
     },
     'level-005': {
         id: 'level-005',
-        name: 'Tutorial: Ruta larga',
+        name: 'Tutorial: Repetir bloques',
         order: 5
     },
     'level-006': {
         id: 'level-006',
-        name: 'Barrera central',
+        name: 'Tutorial: Enter y bloques',
         order: 6
     },
     'level-007': {
