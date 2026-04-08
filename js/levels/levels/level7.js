@@ -36,7 +36,7 @@ const level7 = new Level({
             title: 'Aventura libre',
             command: 'explora',
             description: 'Bienvenido a tu propia aventura, resuelve libremente el nivel y puntúa.',
-            objective: 'La ruta más óptima mezcla comandos normales con dos bloques repeat: "derecha abajo repeat" y "abajo abajo repeat".'
+            objective: 'Intenta encontrar la ruta más óptima mezclando comandos normales con bloques de repetir.'
         }
     ]
 });
