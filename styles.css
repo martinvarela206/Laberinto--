@@ -90,21 +90,22 @@ header {
     flex-direction: column;
     align-items: center;
     background: rgba(0,0,0,0.2);
-    padding: 0.5rem 1rem;
+    padding: 0.35rem 0.7rem;
     border-radius: 0.5rem;
 }
 
 .stat-label {
-    font-size: 0.8rem;
+    font-size: 0.68rem;
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 1px;
 }
 
 .stat-value {
-    font-size: 1.5rem;
+    font-size: 1.05rem;
     font-weight: 800;
     color: #fff;
+    line-height: 1;
 }
 
 /* Main Content */
@@ -694,6 +695,16 @@ header {
     .stat-box {
         flex: 1 1 0;
         min-width: 0;
+        padding: 0.25rem 0.45rem;
+    }
+
+    .stat-label {
+        font-size: 0.58rem;
+        letter-spacing: 0.06em;
+    }
+
+    .stat-value {
+        font-size: 0.9rem;
     }
 
     .command-grid {
@@ -836,6 +847,23 @@ header {
 
     header {
         padding: 0.75rem 1rem;
+    }
+
+    .stats {
+        gap: 0.4rem;
+    }
+
+    .stat-box {
+        padding: 0.2rem 0.35rem;
+        border-radius: 0.4rem;
+    }
+
+    .stat-label {
+        font-size: 0.52rem;
+    }
+
+    .stat-value {
+        font-size: 0.8rem;
     }
 
     .main-content {
