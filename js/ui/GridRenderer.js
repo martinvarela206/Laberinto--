@@ -113,8 +113,12 @@ export const gridRenderer = {
 
         const widthBasedCell = Math.floor(availableWidth / (level.width + 2));
         const heightBasedCell = Math.floor(availableHeight / (level.height + 2));
+        const isPortraitMobile = window.matchMedia('(max-width: 768px) and (orientation: portrait)').matches;
 
-        const cellSize = Math.max(14, Math.min(40, widthBasedCell || 14, heightBasedCell || 40));
+        const cellSize = Math.max(
+            14,
+            Math.min(40, isPortraitMobile ? (widthBasedCell || 14) : Math.min(widthBasedCell || 14, heightBasedCell || 40))
+        );
 
         els.gridContainer.style.setProperty('--cell-size', `${cellSize}px`);
         els.gridContainer.style.setProperty('--grid-width', String(level.width));
