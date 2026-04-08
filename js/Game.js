@@ -32,7 +32,13 @@ function resolveLevelIdFromUrlPath() {
     const path = window.location.pathname || '';
     const cleanPath = path.replace(/\/+$/, '');
     const parts = cleanPath.split('/').filter(Boolean);
-    const candidate = parts.length ? parts[parts.length - 1] : '';
+    const params = new URLSearchParams(window.location.search || '');
+    const queryLevel = (params.get('l') || '').trim();
+    const pathLevel = parts.length ? parts[parts.length - 1] : '';
+
+    const candidate = /^\d+$/.test(queryLevel)
+        ? queryLevel
+        : pathLevel;
 
     if (!/^\d+$/.test(candidate)) {
         return null;
