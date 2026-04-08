@@ -15,7 +15,7 @@ import { level6 } from './levels/level6.js';
 import { level7 } from './levels/level7.js';
 import { levelRegistry } from './LevelRegistry.js';
 
-const levelsArray = [level1, level2, level3, level4, level5, level6, level7, level8];
+const levelsArray = [level1, level2, level3, level4, level5, level6, level7];
 levelsArray.forEach((level) => {
     if (level.id) {
         levelRegistry.registerById(level.id, level);
