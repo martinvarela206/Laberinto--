@@ -8,10 +8,10 @@ import { levelRegistry } from '../LevelRegistry.js';
 const level3 = new Level({
     id: 'level-003',
     name: 'Tutorial: Subir',
-    width: 6,
-    height: 3,
-    playerStart: { x: 0, y: 2 },
-    goal: { x: 5, y: 0 },
+    width: 3,
+    height: 2,
+    playerStart: { x: 0, y: 1 },
+    goal: { x: 2, y: 0 },
     walls: [],
     traps: [],
     timeLimit: 60,
@@ -22,7 +22,7 @@ const level3 = new Level({
             title: 'Tutorial 3: Arriba',
             command: 'up',
             description: 'Este nivel te enseña el comando up. Sirve para mover al robot una celda hacia arriba.',
-            objective: 'Combina right y up para llegar a la meta ubicada en la fila superior.'
+            objective: 'Combina right y up para llegar a la meta en solo tres movimientos.'
         }
     ]
 });

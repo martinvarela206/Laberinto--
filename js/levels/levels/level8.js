@@ -8,16 +8,16 @@ import { levelRegistry } from '../LevelRegistry.js';
 const level8 = new Level({
     id: 'level-008',
     name: 'Tutorial: Borrar comandos',
-    width: 4,
+    width: 3,
     height: 1,
     playerStart: { x: 0, y: 0 },
-    goal: { x: 3, y: 0 },
+    goal: { x: 2, y: 0 },
     walls: [],
     traps: [],
     timeLimit: 90,
     allowedCommands: ['right'],
     defaultCommandLimit: 20,
-    initialSequence: ['right', 'right', 'right', 'right'],
+    initialSequence: ['right', 'right', 'right'],
     tutorialPages: [
         {
             title: 'Tutorial 6: Corregir un programa',
@@ -27,8 +27,8 @@ const level8 = new Level({
         },
         {
             title: 'Detectar el comando extra',
-            command: 'right x4',
-            description: 'La secuencia inicial trae cuatro movimientos a la derecha, pero el mapa solo necesita tres.',
+            command: 'right x3',
+            description: 'La secuencia inicial trae tres movimientos a la derecha, pero el mapa solo necesita dos.',
             objective: 'Elimina un right y luego ejecuta para llegar a la meta sin salir del mapa.'
         }
     ]

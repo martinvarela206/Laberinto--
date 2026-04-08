@@ -8,10 +8,10 @@ import { levelRegistry } from '../LevelRegistry.js';
 const level2 = new Level({
     id: 'level-002',
     name: 'Tutorial: Giro simple',
-    width: 6,
+    width: 3,
     height: 2,
     playerStart: { x: 0, y: 0 },
-    goal: { x: 5, y: 1 },
+    goal: { x: 2, y: 1 },
     walls: [],
     traps: [],
     timeLimit: 60,
@@ -22,7 +22,7 @@ const level2 = new Level({
             title: 'Tutorial 2: Bajar',
             command: 'down',
             description: 'Ahora aprenderás el comando down. Sirve para mover al robot una celda hacia abajo y combinarlo con right.',
-            objective: 'Avanza hacia la derecha y luego baja para alcanzar la meta.'
+            objective: 'Avanza dos veces hacia la derecha y luego baja para alcanzar la meta.'
         }
     ]
 });
