@@ -106,6 +106,19 @@ header {
     font-weight: 800;
     color: #fff;
     line-height: 1;
+    vertical-align: middle;
+}
+
+.stat-value-inline {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.1rem;
+}
+
+.stat-unit {
+    font-size: 0.72em;
+    line-height: 1;
+    opacity: 0.9;
 }
 
 /* Main Content */
@@ -707,6 +720,10 @@ header {
         font-size: 0.9rem;
     }
 
+    .stat-unit {
+        font-size: 0.7em;
+    }
+
     .command-grid {
         justify-content: flex-start;
     }
@@ -864,6 +881,10 @@ header {
 
     .stat-value {
         font-size: 0.8rem;
+    }
+
+    .stat-unit {
+        font-size: 0.68em;
     }
 
     .main-content {
