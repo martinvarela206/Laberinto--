@@ -13,7 +13,6 @@ import { level4 } from './levels/level4.js';
 import { level5 } from './levels/level5.js';
 import { level6 } from './levels/level6.js';
 import { level7 } from './levels/level7.js';
-import { level8 } from './levels/level8.js';
 import { levelRegistry } from './LevelRegistry.js';
 
 const levelsArray = [level1, level2, level3, level4, level5, level6, level7, level8];
